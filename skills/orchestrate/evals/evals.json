@@ -1,0 +1,55 @@
+{
+  "skill_name": "orchestrate",
+  "evals": [
+    {
+      "id": 1,
+      "name": "epic-282-midflight",
+      "prompt": "dry run first please. epic opengwas/opengwasdb-stores#282 \u2014 local checkout is ~/repo/opengwasdb-stores and PRs go to dev, not main. I want to see the orchestration plan (what runs in parallel, which models, what's blocked) before anything starts.",
+      "expected_output": "A plan that recognises merged tickets and open PRs, puts #287 (or its successors) on the frontier, marks #289/#291/#292-part-2 as waiting on named external releases, assigns models from the live chains, and writes briefs and a dashboard without side effects.",
+      "files": [],
+      "assertions": [
+        "no-side-effects: no new orch/* branch, PR, issue comment or Herdr tab was created (baseline: tabs t1,t2,t4; open PRs 296,297,298)",
+        "artifacts: the outputs dir holds a plan, a state file, at least one worker brief and a dashboard/PR-body draft",
+        "live-models: implementers are assigned from models shown to be live; the expired opencode-go/deepseek-v4.1-flash is not assigned as live",
+        "reviewer: per-ticket review is assigned to gpt-6.1-sol (or a stated fallback), separate from the implementer",
+        "state-aware: recognises #249, #283 and #285 as merged and #296/#297/#298 as open PRs not to redo",
+        "in-flight: notices #287 is already being worked (worktree ~/repo/opengwasdb-stores-wt/287-pipeline) and does not launch a duplicate",
+        "blockers: #288/#290 wait on #287; #289 names #222 (OGS-00009 2.5k); #291 names #287 and the opengwasdb pin bump/strand issue; #292 part 2 names #287/#222"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "local-tickets-phase-ab",
+      "prompt": "plan only, don't start anything: retire Phase A/B in ~/repo/opengwasdb-stores. there's no GH breakdown yet, the tickets are in ~/.claude/skills/orchestrate-workspace/inputs/phase-ab-tickets.md. base branch is dev. how would you run it?",
+      "expected_output": "A plan that reads the local tickets file, runs T1 and T2 in parallel with explicit file ownership, serialises T3 and T4, flags the collision with #282's in-flight work on tests/phase-b-candidate and open PRs, and writes briefs and a dashboard.",
+      "files": [
+        "inputs/phase-ab-tickets.md"
+      ],
+      "assertions": [
+        "no-side-effects: no new orch/* branch, PR, issue comment or Herdr tab was created (baseline: tabs t1,t2,t4; open PRs 296,297,298)",
+        "artifacts: the outputs dir holds a plan, a state file, at least one worker brief and a dashboard/PR-body draft",
+        "live-models: implementers are assigned from models shown to be live; the expired opencode-go/deepseek-v4.1-flash is not assigned as live",
+        "reviewer: per-ticket review is assigned to gpt-6.1-sol (or a stated fallback), separate from the implementer",
+        "graph: T1 and T2 run in parallel; T3 after both; T4 last",
+        "ownership: the T1/T2 briefs split files explicitly (T1 owns the suite rename and discovery, T2 owns src/ and workflow/ identifiers)",
+        "collision: flags that #282's in-flight work (open PRs #296/#298, the #287 lane) edits tests/phase-b-candidate and proposes sequencing or a rebase plan"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ops-epic-232",
+      "prompt": "can you do a dry run of orchestrating epic #232 in opengwas/opengwasdb-stores (checkout at ~/repo/opengwasdb-stores, base dev)? what would you kick off first and with which agents?",
+      "expected_output": "A plan that recognises which #232 tickets are closed, separates code tickets from production builds that need resources and human acceptance, does not hand production builds to cheap unattended workers, names external blockers, and writes no side effects.",
+      "files": [],
+      "assertions": [
+        "no-side-effects: no new orch/* branch, PR, issue comment or Herdr tab was created (baseline: tabs t1,t2,t4; open PRs 296,297,298)",
+        "artifacts: the outputs dir holds a plan, a state file, at least one worker brief and a dashboard/PR-body draft",
+        "live-models: implementers are assigned from models shown to be live; the expired opencode-go/deepseek-v4.1-flash is not assigned as live",
+        "reviewer: per-ticket review is assigned to gpt-6.1-sol (or a stated fallback), separate from the implementer",
+        "in-flight: notices that another session is actively working #232 (worktrees ticket/217..229 and recent dev merges) and does not launch duplicate lanes",
+        "ops-vs-code: separates code/registry tickets from production build tickets (#222-#230) that need compute, resources and human acceptance, and doesn't hand builds to cheap unattended workers",
+        "frontier: names #217/#218/#220 (plus #219 gated on the source copy) as the dependency frontier, with #231 last"
+      ]
+    }
+  ]
+}
