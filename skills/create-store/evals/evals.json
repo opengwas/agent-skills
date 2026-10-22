@@ -1,0 +1,61 @@
+{
+  "skill_name": "create-store",
+  "evals": [
+    {
+      "id": 1,
+      "name": "ambiguous-store-alignment",
+      "prompt": "/create-store: I want a dense store from a new consortium's summary stats in opengwasdb-stores. Probably European, maybe include the meta-analyses too. Pick sensible filters and IDs. Plan only for now.",
+      "expected_output": "Repository/source discovery followed by an alignment interview; no invented scientific choices, Store-id allocation or GitHub writes.",
+      "files": [],
+      "assertions": [
+        "Reads repo instructions, current contracts and the project README; checks existing work and reservations before recommending IDs.",
+        "Uses or offers grilling/grill-me for unresolved single-ancestry versus meta-analysis, shape, filtering and identity decisions; asks recommendations in dependency-aware rounds.",
+        "Covers layout/completion, Selection, source semantics, filters, ancestry expectations, Store ID and registry/source Analysis ID mapping with examples.",
+        "Does not treat source European labels as measured Assigned Ancestry or silently opt out of requested completion.",
+        "No issues, project writes, branches, acquisition, generation, builds or worker launches. Unsettled scientific choices keep the draft local."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "aligned-three-ticket-filing",
+      "prompt": "/create-store: use the attached agreed Store contract and checkout. I confirm the contract and approve filing the epic and its three stage tickets, after you check for duplicates. The source already exists locally; verify and reuse it. Do not start orchestration.",
+      "expected_output": "One typed Epic in Store builds, three native sub-issues, two chain dependencies and verified GitHub state; source ticket verifies existing inputs, and the final handoff offers orchestrate without running it.",
+      "files": [],
+      "assertions": [
+        "In a sandbox with a supplied complete contract, creates exactly one Epic and three stage tickets unless a matching epic already exists.",
+        "The epic alone is on project 1 with Workstream Store builds, Status Todo and concrete Next; no child-ticket body table substitutes for native sub-issues.",
+        "Obtain source blocks Create release bundle, which blocks Run build, using native dependencies plus textual Blocked by links.",
+        "Already acquired data still has an integrity/provenance verification ticket, not an unnecessary download or a silently skipped stage.",
+        "Tickets have stage-specific evidence, exact-bundle human acceptance, execution/publication approval, and actual built Analysis ID reconciliation criteria.",
+        "Re-fetches and verifies type, parents, dependencies and board fields, and returns URLs; does not launch orchestrate or publish."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "partial-filing-resume",
+      "prompt": "/create-store: resume the approved filing. The receipt has the epic and Obtain source URLs, but the previous Create release bundle call timed out. The epic is already Active on the board. Repair missing links without duplicating anything.",
+      "expected_output": "Reconciles GitHub state and searches for the timed-out creation before creating missing issues; preserves live fields and repairs only missing links.",
+      "files": [],
+      "assertions": [
+        "Fetches the receipt's issues and searches for the possibly successful timed-out creation before retrying.",
+        "Reuses existing stage tickets; applies only unsatisfied type, parent, field and dependency operations.",
+        "Preserves an existing epic's live Status and does not reparent another epic's ticket without approval.",
+        "Reports exact existing URLs and remaining operations if permissions fail; does not claim a complete filing from command output alone."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "unsupported-completion-and-multiple-sources",
+      "prompt": "/create-store plan only: combine two collections with different allele conventions into one reference-completed store. Ancestries are EUR and AMR; there is no approved AMR panel yet. Allocate the next OGS number you find on disk.",
+      "expected_output": "Raises collection/Selection and completion capability conflicts for explicit alignment, checks reservations beyond the registry, and records reference/capability blockers instead of inventing a successful build plan.",
+      "files": [],
+      "assertions": [
+        "Explains that heterogeneous Column Maps imply separate Source Collections and agrees any release split with the user.",
+        "Does not allocate by max-on-disk alone; checks issue/config/active-work reservations and proposes a safe recheck before emission.",
+        "Keeps required AMR completion blocked on a qualified matching panel; does not silently substitute EUR references or observed-only output.",
+        "Proposes three stage tickets per agreed release, with shared external prerequisites rather than extra hidden stages or registry-owned engine logic.",
+        "Makes no external writes in plan-only mode."
+      ]
+    }
+  ]
+}

@@ -14,6 +14,12 @@ workers spend theirs on implementation.
 `<skill>` below means this skill's directory. Read the repo's `CONTEXT.md` and ADRs first,
 if it has them, so your briefs and rulings use the project's vocabulary.
 
+**Store build epics.** For `opengwasdb-stores` work that acquires source data,
+creates a Release Bundle or runs Store Release Build (including epics filed by
+`/create-store`), read [references/store-builds.md](references/store-builds.md)
+before planning, including dry runs. It defines operational evidence and human
+gates; code completion alone does not complete these tickets.
+
 ## The shape of the run
 
 - **Task graph.** The tickets are a graph with blocking edges, not a list. At any moment
@@ -85,7 +91,9 @@ files.
 
 Fetch the epic and every ticket, including their blocking edges: `gh issue view`,
 sub-issues and the "Blocked by" sections. Record each ticket's acceptance criteria and
-its blockers.
+its blockers. For mixed code/operational work, distinguish implementation from
+execution, record the required evidence and approval gates, and release downstream
+tickets only when the upstream stage's full criteria are satisfied.
 
 - **External blockers** (another repo's ticket, a data landing, a deploy) put a ticket in
   `waiting-external`. Name exactly what releases it.
@@ -301,8 +309,10 @@ Re-compute the frontier and launch whatever it opened.
 - **Nothing outward without the user.** You push branches, comment on tickets, and close
   tickets as they merge into the integration branch, reopening any the final review sends
   back. You also keep the epic's board fields current. You don't
-  merge to the base branch, delete remote branches, or publish. If a permission prompt
-  blocks an action, stop and tell the user why it's needed.
+  merge to the base branch or delete remote branches. Publishing is also off-limits
+  except for a Store build operation whose command, host, budget and publication
+  effect the user explicitly approved under [the Store build gates](references/store-builds.md).
+  If a permission prompt blocks an action, stop and tell the user why it's needed.
 - **Report in a fixed shape** (see [references/brief-template.md](references/brief-template.md)): results with evidence,
   commits, decisions taken, decisions needed. Keep it to about 400 words. Reports that
   ramble cost your context on every lane.

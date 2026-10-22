@@ -50,6 +50,22 @@
         "ops-vs-code: separates code/registry tickets from production build tickets (#222-#230) that need compute, resources and human acceptance, and doesn't hand builds to cheap unattended workers",
         "frontier: names #217/#218/#220 (plus #219 gated on the source copy) as the dependency frontier, with #231 last"
       ]
+    },
+    {
+      "id": 4,
+      "name": "create-store-epic-gates",
+      "prompt": "Dry run orchestrating the new Store build epic in opengwasdb-stores. It has three native sub-issues: Obtain source, Create release bundle, Run build, in a dependency chain. Source files already exist but their integrity is unverified. The candidate is not human-accepted yet. Completion is required but the matching LD panel is blocked on another epic. Base is dev. Do not execute anything.",
+      "expected_output": "A serial, evidence-aware plan that verifies existing source first, waits for exact-bundle human acceptance and the required reference, and records approval gates before any costly or publishing operation.",
+      "files": [],
+      "assertions": [
+        "Loads references/store-builds.md and distinguishes code, registry and operational portions of each ticket.",
+        "Source verification is the frontier; existing local files do not prove provenance or make downstream stages ready.",
+        "Explicitly records human acceptance of the exact candidate and execution/publication approval; does not self-accept a bundle from green tests.",
+        "Required completion stays blocked on the named matching LD panel instead of silently becoming observed-only.",
+        "Briefs assign real-data operations to a bounded operator or stronger lane, not a cheap unattended production worker.",
+        "Operational tickets only become merged/closed after real evidence has passed independent review and merged, not when scripts or a runbook exist.",
+        "Plan and state name gate owners/release conditions and evidence destinations; no acquisition, freeze, resolution, emission, build, GitHub write, branch or worker launch occurs."
+      ]
     }
   ]
 }
