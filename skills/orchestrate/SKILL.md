@@ -289,8 +289,8 @@ Re-compute the frontier and launch whatever it opened.
    `sync-run` closes it again when it re-merges.
 3. **Project site.** Only if the repo has `docs/spec/project-site.md`; otherwise skip to 4.
    Details in [references/project-site.md](references/project-site.md).
-   - Write the epic's summary (2–4 sentences) to `notes/summary.md`, then
-     `python3 <skill>/scripts/epic_record.py <run-dir> --summary-file notes/summary.md
+   - Write the epic's summary (2–4 sentences) to `<run-dir>/notes/summary.md`, then
+     `python3 <skill>/scripts/epic_record.py <run-dir> --summary-file <run-dir>/notes/summary.md
      --out docs/_epics/<repo>-<n>.yaml` on the integration branch.
    - Validate it with the repo's validator, fix what it names, and commit it.
    - Run `pixi run yardstick` on the integration branch, outside 00:00–11:00 local and with
