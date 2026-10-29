@@ -25,6 +25,7 @@ You are implementing <repo> issue #<n>, part of epic #<epic>.
 - Stage explicit paths only; never `git add -A`.
 - Commit after every green slice. Commit messages end with `(#<n>)` and the trailer:
   `<Co-Authored-By trailer>`.
+- If the repo has `changelog.d/`, add the ticket's fragment, as CONTRIBUTING says. The epic PR's version notes are those fragments.
 - If a contract or schema changes, its spec goes in the same commit. Every commit must import and pass on its own.
 - Don't push. Don't open PRs.
 

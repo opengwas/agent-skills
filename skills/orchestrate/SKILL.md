@@ -137,9 +137,10 @@ survive the switch.
    no Workstream yet, set one with `board.py set <repo>#<epic> Workstream=<name>`. Ask the
    user if the right workstream isn't obvious.
 
-Tickets close as they merge into the integration branch (step 9). Closing keywords in the
-PR body are not needed, and on a base branch that isn't the default they wouldn't fire
-anyway.
+Tickets close as they merge into the integration branch (step 9), so the PR body needs no
+closing keywords for them. Keywords fire only when the base is the default branch. With
+base `main`, `Closes #<epic>` closes the epic when the owner merges; on any other base it
+wouldn't fire, and the owner closes the epic.
 
 5. Run `lane.py init <run-dir> "<epic name>"` to rename your tab.
 6. Start the **test-time baseline**: the full suite on the kickoff commit, in a detached
@@ -176,6 +177,7 @@ Per ticket:
    - seams;
    - stop-and-report gates;
    - the commit trailer;
+   - in a repo with `changelog.d/`, the ticket's changelog fragment, per CONTRIBUTING;
    - "don't push";
    - the report path and format.
 3. **Model.** Default to the implementer chain. Escalate to Claude Code (Sonnet, or Opus
@@ -285,11 +287,24 @@ Re-compute the frontier and launch whatever it opened.
    - set its status to `fixing` in `state.json`.
 
    `sync-run` closes it again when it re-merges.
-3. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
+3. **Project site.** Only if the repo has `docs/spec/project-site.md`; otherwise skip to 4.
+   Details in [references/project-site.md](references/project-site.md).
+   - Write the epic's summary (2–4 sentences) to `notes/summary.md`, then
+     `python3 <skill>/scripts/epic_record.py <run-dir> --summary-file notes/summary.md
+     --out docs/_epics/<repo>-<n>.yaml` on the integration branch.
+   - Validate it with the repo's validator, fix what it names, and commit it.
+   - Run `pixi run yardstick` on the integration branch, outside 00:00–11:00 local and with
+     the host quiet. Otherwise defer it: set `waiting_external.yardstick` and say so on
+     the dashboard. Commit the result, and set `yardstick.after` in `state.json` to it and
+     `before` to the newest committed result at the base's opengwasdb pin (null if none).
+   - Only if the epic changes Store data, set `catalog.before` and `catalog.after`. `after`
+     is usually null here: the operator rebuilds the catalog after the merge and fills it in.
+   - Version notes for the epic PR are the lanes' changelog fragments.
+4. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
    follow-up issues filed, and anything left in `waiting-external`. Set `board_note` to
    "ready for your review" and run `sync-run` once more.
-4. Don't merge the PR into the base branch. That review is the user's.
-5. Clean up the worktrees, and the Herdr tabs and panes this run created, and nothing else.
+5. Don't merge the PR into the base branch. That review is the user's.
+6. Clean up the worktrees, and the Herdr tabs and panes this run created, and nothing else.
 
 ## Guardrails that save the most time
 

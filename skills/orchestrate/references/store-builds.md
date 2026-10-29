@@ -86,7 +86,7 @@ costly or publishing command, obtain explicit approval of command, host, budget
 and publication effect; permission to orchestrate or file issues is insufficient.
 An explicit user authorisation may cover those named actions up front; record
 its scope rather than repeatedly asking. Rehearsal go/no-go remains a separate
-gate when required. If `dev` landing is required first, wait for the user's PR
+gate when required. If landing on the base branch is required first, wait for the user's PR
 merge; do not merge to the base yourself.
 
 Use the current supported `pixi run release <store-id>` entry point. It may
