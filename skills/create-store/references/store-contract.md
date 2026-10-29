@@ -89,4 +89,4 @@ settle, not a second schema: current repository contracts and ADRs govern.
   actual built Analysis ID equality (not just counts), expected layout/coverage,
   validation verdict and warnings, required completion and indexes, provenance,
   executed commands/runtime and registered reports. State what must reach
-  `dev` before operational execution and who unblocks that landing.
+  the base branch before operational execution and who unblocks that landing.

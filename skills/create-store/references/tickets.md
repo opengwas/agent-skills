@@ -89,7 +89,7 @@ silently overwritten. A generated candidate alone does not finish this ticket.
 **Parent contract:** <epic URL>.
 
 **Blocked by:** <create-release-bundle ticket>; <runtime/Reference Resource/
-compute issues>. Name any required `dev` landing or human execution gate.
+compute issues>. Name any required landing on the base branch or human execution gate.
 
 **Deliverable:** the accepted bundle's Store Release built, validated and
 published through the supported Store Release Build entry point, with reviewed

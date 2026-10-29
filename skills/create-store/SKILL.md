@@ -144,10 +144,10 @@ a printed apply command is not verification.
 Return the epic URL, the three ticket URLs, named blockers and next gate. Offer:
 
 ```text
-/orchestrate opengwas/opengwasdb-stores#<epic> — dry run first; checkout <repo>; base dev
+/orchestrate opengwas/opengwasdb-stores#<epic> — dry run first; checkout <repo>; base <the branch CONTRIBUTING names>
 ```
 
-Use the repository's actual base branch if its instructions change. The
+Use the repository's actual base branch. The
 orchestrator reads its `references/store-builds.md` for these mixed code and
 operational tickets. Stop here unless the user explicitly asks to start that
 separate run; approvals for acceptance, costly execution and publication remain
