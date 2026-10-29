@@ -264,8 +264,8 @@ Workers hit spec gaps. A good brief tells them to stop and report rather than gu
 2. Merge the ticket branch into the integration branch with `--no-ff`.
 3. Run a fast smoke test (the affected suites) in a detached worktree. Record its time
    next to the baseline's for the same suites. Push.
-4. Set the ticket to `merged` in `state.json`, then re-render the dashboard and run
-   `board.py sync-run`. That closes the ticket with a comment naming the merge commit and
+4. Set the ticket to `merged` in `state.json` (its `merge` is the bare merge commit hash,
+   which `epic_record.py` reads), then re-render the dashboard and run `board.py sync-run`. That closes the ticket with a comment naming the merge commit and
    the PR, and moves the epic's Next.
 5. If the merge conflicts, give it to a merger lane with the `resolving-merge-conflicts`
    skill. Resolve by intent, keeping both behaviours, not by picking a side.
@@ -288,17 +288,15 @@ Re-compute the frontier and launch whatever it opened.
 
    `sync-run` closes it again when it re-merges.
 3. **Project site.** Only if the repo has `docs/spec/project-site.md`; otherwise skip to 4.
-   Details in [references/project-site.md](references/project-site.md).
-   - Write the epic's summary (2–4 sentences) to `<run-dir>/notes/summary.md`, then
+   [references/project-site.md](references/project-site.md) has the rules.
+   - Run `pixi run yardstick` on the integration branch if the reference's window and a quiet
+     host allow, and commit the result. Otherwise defer it, and say so in `board_note`.
+   - Set the record's optional keys in `state.json` (`workstream`, `yardstick`, and `catalog`
+     if the epic changes Store data), as the reference says.
+   - Write the summary (2–4 sentences) to `<run-dir>/notes/summary.md`, then run
      `python3 <skill>/scripts/epic_record.py <run-dir> --summary-file <run-dir>/notes/summary.md
-     --out docs/_epics/<repo>-<n>.yaml` on the integration branch.
-   - Validate it with the repo's validator, fix what it names, and commit it.
-   - Run `pixi run yardstick` on the integration branch, outside 00:00–11:00 local and with
-     the host quiet. Otherwise defer it: set `waiting_external.yardstick` and say so on
-     the dashboard. Commit the result, and set `yardstick.after` in `state.json` to it and
-     `before` to the newest committed result at the base's opengwasdb pin (null if none).
-   - Only if the epic changes Store data, set `catalog.before` and `catalog.after`. `after`
-     is usually null here: the operator rebuilds the catalog after the merge and fills it in.
+     --out docs/_epics/<repo>-<n>.yaml` on the integration branch. Validate it with the
+     repo's validator, fix what it names, and commit it. Rerun it when a deferred yardstick lands.
    - Version notes for the epic PR are the lanes' changelog fragments.
 4. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
    follow-up issues filed, and anything left in `waiting-external`. Set `board_note` to

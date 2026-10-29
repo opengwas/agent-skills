@@ -22,10 +22,11 @@ import sys
 from pathlib import Path
 
 ISO = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-HEX = re.compile(r"\b(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
+HEX = re.compile(r"^[0-9a-fA-F]{7,40}(?![0-9A-Za-z_])")
 REF = re.compile(r"(?:[\w.-]+/)?([\w.-]+)?#(\d+)")
 SIBLING = re.compile(r"^(?:odb|ogdb)(\d+)$")
-PLAIN = re.compile(r"^[A-Za-z][A-Za-z0-9 _./#-]*$")
+PLAIN = re.compile(r"[A-Za-z][A-Za-z0-9_./#-]*( [A-Za-z0-9_./-][A-Za-z0-9_./#-]*)*\Z")
+UNSAFE = re.compile("[\x7f-\x9f\u2028\u2029\ufeff]")
 RESERVED = {"null", "true", "false", "yes", "no", "on", "off", "y", "n"}
 
 
@@ -37,9 +38,9 @@ def ref(text, repo):
 
 def commit(*values):
     for v in values:
-        m = HEX.search(str(v)) if v else None
+        m = HEX.match(str(v).strip()) if v else None
         if m:
-            return m.group(0)
+            return m.group(0).lower()
     return None
 
 
@@ -156,9 +157,9 @@ def scalar(v):
         return "true" if v else "false"
     if isinstance(v, (int, float)):
         return repr(v)
-    if PLAIN.match(v) and not v.endswith(" ") and v.lower() not in RESERVED:
+    if PLAIN.match(v) and v.lower() not in RESERVED:
         return v
-    return json.dumps(v, ensure_ascii=False)
+    return UNSAFE.sub(lambda m: "\\u%04x" % ord(m.group()), json.dumps(v, ensure_ascii=False))
 
 
 def emit(v, indent=0, lines=None):
@@ -167,10 +168,10 @@ def emit(v, indent=0, lines=None):
     pad = " " * indent
     for k, x in v.items():
         if isinstance(x, dict):
-            lines.append(f"{pad}{k}:")
+            lines.append(f"{pad}{scalar(k)}:")
             emit(x, indent + 2, lines)
         elif isinstance(x, list) and x:
-            lines.append(f"{pad}{k}:")
+            lines.append(f"{pad}{scalar(k)}:")
             for item in x:
                 if isinstance(item, dict):
                     sub = emit(item, indent + 2, [])
@@ -179,7 +180,7 @@ def emit(v, indent=0, lines=None):
                 else:
                     lines.append(f"{pad}- {scalar(item)}")
         else:
-            lines.append(f"{pad}{k}: {'[]' if x == [] else scalar(x)}")
+            lines.append(f"{pad}{scalar(k)}: {'[]' if x == [] else scalar(x)}")
     return lines
 
 

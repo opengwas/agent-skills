@@ -20,7 +20,8 @@ Optional `state.json` keys it copies, set them as you learn them:
 | `versions` | tags the PRs shipped |
 
 Tickets with no `issue` take their key from the entry name (`386`, `odb333`), else `null`.
-`merge` is the first commit hash in the entry's `merge` or `merge_commit`. `prs` come from
+`merge` is a commit only when the entry's `merge` or `merge_commit` *starts* with a 7–40 hex
+hash (`1ad7685 + 1f1d2fa (final fixes)` gives `1ad7685`); any other text gives `null`. `prs` come from
 `pr`, `pr_merged` and the tickets' `pr`. `started` is the earliest decision's date unless
 `state.json` sets `started`.
 
@@ -37,7 +38,7 @@ f=sys.argv[1]; print(validate_epic(yaml.safe_load(open(f)), f.rsplit('/',1)[-1])
 read-only on the Artifact Root and takes about 90 s. A run overlapping 00:00–11:00 local is
 flagged `veeam_window` (the nightly snapshot throttles I/O); a loaded host skews it too. So
 run it after 11:00 with the lanes idle, and check the load average first. Otherwise defer it
-and say so.
+and say so in `board_note`.
 
 `before` is the newest committed result whose `opengwasdb.revision` equals the revision the
 base branch's `pixi.lock` pins; `null` if none. The first epic after a re-pin has none.
@@ -45,6 +46,6 @@ base branch's `pixi.lock` pins; `null` if none. The first epic after a re-pin ha
 ## Catalog versions
 
 Only when the epic changes Store data. `catalog.before` is the current version directory
-name (16 hex) under the catalog root at the start. `after` is the version the operator's
-rebuild produces after the merge, so at finish it is `null`: name the operator on the
-dashboard as the one who fills it in.
+name (16 hex) under the catalog root at the start. `after` is the version the owner's
+rebuild produces after the merge, so at finish it is `null`: the owner, who rebuilds the
+catalog after the merge, fills it in.
