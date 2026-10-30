@@ -456,6 +456,9 @@ def sync_run(run_dir, note=None, dry_run=False):
     Every ticket the run has merged into its integration branch is closed,
     with a comment naming the merge and the PR. The epic's Next becomes the
     run's progress line, and the epic is added to the board if missing.
+    A new or Todo epic becomes Active. Paused and Done are left as they
+    are: a /board sync or the owner set them, and refreshing a run must not
+    undo that. A run that resumes a Paused epic sets Active itself.
     A ticket the final review sends back is reopened by the orchestrator and
     set to `fixing` in state.json, so this never closes it again until it
     re-merges.
@@ -491,7 +494,7 @@ def sync_run(run_dir, note=None, dry_run=False):
 
     item = next((i for i in fetch_project()["items"] if i["key"] == epic), None)
     fields = {"Next": " · ".join(parts)}
-    if not item or item["fields"].get("Status") not in ("Active", "Done"):
+    if not item or item["fields"].get("Status") in (None, "", "Todo"):
         fields["Status"] = "Active"
     ops.append({"op": "set" if item else "add", "key": epic, "fields": fields})
     apply(ops, dry_run)

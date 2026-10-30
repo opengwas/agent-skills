@@ -66,7 +66,8 @@ external wait is on, set it as `board_note` in `state.json` rather than passing 
 
 State lives in that file, not in your context, because this run will outlive your context. Session
 limits, compaction and crashes all happen on long epics. When you resume, the first step is
-always to read `state.json` and check `herdr agent list`.
+always to read `state.json` and check `herdr agent list`. If the epic is Paused on the board,
+set it back with `board.py set <repo>#<epic> Status=Active`: `sync-run` leaves Paused alone.
 
 Ticket statuses: `blocked`, `frontier`, `implementing`, `reviewing`, `fixing`, `merged`,
 `needs-decision`, `waiting-external`.
