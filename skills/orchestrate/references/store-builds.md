@@ -103,9 +103,10 @@ Observed-View Check and publication evidence under the current ADRs. Record
 warnings and deviations; missing/unknown evidence is not a pass.
 
 **Benchmark every published Store.** A build is not finished until its Store is
-measured. Every step is read-only on the Artifact Root; run them after 11:00
-local (the nightly Veeam snapshot throttles I/O before then) with the lanes
-idle, and record the load average. With no quiet window, defer and say so in
+measured. Every step is read-only on the Artifact Root. Run them with the lanes
+idle and no other build, validation or completion on the host, and record the
+load average. (The Veeam backup skips `/data/opengwasdb` since 2026-11-02, so
+there is no time-of-day window.) With no quiet host, defer and say so in
 `board_note`: the ticket stays open unless the owner waives it.
 
 1. **Release benchmark**, for every Store (`docs/benchmark-output/README.md`).

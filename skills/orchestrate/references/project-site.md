@@ -38,10 +38,10 @@ f=sys.argv[1]; print(validate_epic(yaml.safe_load(open(f)), f.rsplit('/',1)[-1])
 read-only on the Artifact Root and takes about 4–5 minutes since OGS-00011 joined
 (`yardstick-2`; one full Analysis of that Hybrid is ~24 s a read). A newly published Store
 joins it only when it adds a layout or coverage the workload lacks: [store-builds.md](store-builds.md),
-"Benchmark every published Store". A run overlapping 00:00–11:00 local is
-flagged `veeam_window` (the nightly snapshot throttles I/O); a loaded host skews it too. So
-run it after 11:00 with the lanes idle, and check the load average first. Otherwise defer it
-and say so in `board_note`.
+"Benchmark every published Store". A loaded host skews it, so run it with the lanes idle
+and check the load average first; otherwise defer it and say so in `board_note`. Results before
+2026-11-02 may carry `veeam_window: true` from the old nightly backup, which now skips
+`/data/opengwasdb`; don't schedule around it.
 
 `before` is the newest committed result whose `opengwasdb.revision` equals the revision the
 base branch's `pixi.lock` pins; `null` if none. The first epic after a re-pin has none.
