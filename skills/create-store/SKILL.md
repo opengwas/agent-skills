@@ -73,7 +73,8 @@ stage tickets under the epic, in order:
 1. **Obtain source** — reproducible acquisition/reuse, source metadata, identity
    mapping and integrity evidence.
 2. **Create release bundle** — freeze, resolve, select, emit and human acceptance.
-3. **Run build** — resource/runtime preflight, approved execution and validation.
+3. **Run build** — resource/runtime preflight, approved execution, validation
+   and a benchmark of the published Store.
 
 The native dependency chain is `Obtain source → Create release bundle → Run
 build`. Put a **Blocked by** section in each ticket too, for readers and

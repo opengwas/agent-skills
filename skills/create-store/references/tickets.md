@@ -92,8 +92,8 @@ silently overwritten. A generated candidate alone does not finish this ticket.
 compute issues>. Name any required landing on the base branch or human execution gate.
 
 **Deliverable:** the accepted bundle's Store Release built, validated and
-published through the supported Store Release Build entry point, with reviewed
-operational evidence committed back to the registry.
+published through the supported Store Release Build entry point, then
+benchmarked, with reviewed operational evidence committed back to the registry.
 
 **Acceptance criteria:**
 - Verify the accepted bundle's revision/checksums, pinned runtime/capabilities,
@@ -114,6 +114,12 @@ operational evidence committed back to the registry.
   runtime, planned/executed commands, timestamps, artifact locations and checks.
   Preserve generation/acceptance evidence distinctly from built-Store validation.
   Commit the registry evidence and regenerate the applicable registry views.
+- Benchmark the published Store, read-only, as the orchestrate skill's
+  store-builds reference describes: its release-benchmark anchor and run
+  (opengwasdb's seven standard query shapes and HM3); a yardstick entry when it
+  adds a layout or coverage the workload lacks; and for a full-scale Store its
+  opengwasdb harness and report.
+  Only the owner can waive this; a deferred benchmark keeps the ticket open.
 - An independent reviewer checks evidence against the contract before the ticket
   branch merges. All required stages have evidence, not a promised follow-up.
 

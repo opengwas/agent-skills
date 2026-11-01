@@ -102,6 +102,38 @@ coverage, completion and required indexes. For completion, require the applicabl
 Observed-View Check and publication evidence under the current ADRs. Record
 warnings and deviations; missing/unknown evidence is not a pass.
 
+**Benchmark every published Store.** A build is not finished until its Store is
+measured. Every step is read-only on the Artifact Root; run them after 11:00
+local (the nightly Veeam snapshot throttles I/O before then) with the lanes
+idle, and record the load average. With no quiet window, defer and say so in
+`board_note`: the ticket stays open unless the owner waives it.
+
+1. **Release benchmark**, for every Store (`docs/benchmark-output/README.md`).
+   Add the Store to `tools/benchmarks/release-benchmark-anchors.yaml` (its
+   first Analysis, unless a measurement says otherwise) and run
+   `tools/benchmarks/release-benchmark-report.py --store <id>` under an
+   opengwasdb checkout at the pin. It runs opengwasdb's seven standard query
+   shapes and the HM3 extract through opengwasdb's own harness.
+2. **Yardstick** (`docs/spec/yardstick.md`), when the Store adds a layout or
+   coverage the workload lacks, or the owner asks. The yardstick is a small
+   fixed trend benchmark with a 600 s budget, not a census. Take the
+   identifiers from the Store's own `variants.tsv.gz` rows 100,000 and 300,000
+   and its first Analysis, and check each read-only returns rows; say in the
+   entry which component each lookup reads. Bump `workload_id` and say why in
+   the spec. Commit, then run `pixi run yardstick` on the clean tree, so the
+   result is not `dirty`, and commit the result. The Store's project-site page
+   shows its size and timings from it.
+3. **Full-scale report**, for a Store a reader will compare with the others.
+   Run its harness in opengwasdb's `benchmarks/`, or write one on
+   `benchmarks/_query_shapes.py`, and commit the JSON and the rendered `.qmd`
+   report there, in an opengwasdb PR. A harness's fixed Analyses and variants
+   must exist in the Store: a whole-Analysis read of an absent Analysis returns
+   no rows rather than failing, so check before timing.
+
+Report the size on disk by component, the timings and the peak memory beside
+the build evidence, and compare with a Store of the same layout and similar
+size where one has been measured.
+
 ## 4. Review, merge and finish
 
 Keep the normal integration branch, draft PR/dashboard and two-axis reviews.
@@ -112,8 +144,8 @@ artifacts, not worker claims. Large artifacts/logs remain outside Git, with
 stable references and digests in small committed receipts.
 
 An operational ticket reaches `merged` **only after** its real operation and all
-acceptance criteria pass, its evidence has independent review, and the evidence
-commit merges into the integration branch. For already completed work, commit
+acceptance criteria pass (for a build, its benchmark too), its evidence has
+independent review, and the evidence commit merges into the integration branch. For already completed work, commit
 verified reconciliation evidence rather than a fake implementation/kickoff
 commit. A launch, running process, generated script, candidate bundle or an
 unexecuted runbook cannot close a stage ticket.

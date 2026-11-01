@@ -35,7 +35,10 @@ f=sys.argv[1]; print(validate_epic(yaml.safe_load(open(f)), f.rsplit('/',1)[-1])
 ## The yardstick
 
 `pixi run yardstick` writes `docs/_yardstick/<UTC start>-<opengwasdb version>.json`. It is
-read-only on the Artifact Root and takes about 90 s. A run overlapping 00:00–11:00 local is
+read-only on the Artifact Root and takes about 4–5 minutes since OGS-00011 joined
+(`yardstick-2`; one full Analysis of that Hybrid is ~24 s a read). A newly published Store
+joins it only when it adds a layout or coverage the workload lacks: [store-builds.md](store-builds.md),
+"Benchmark every published Store". A run overlapping 00:00–11:00 local is
 flagged `veeam_window` (the nightly snapshot throttles I/O); a loaded host skews it too. So
 run it after 11:00 with the lanes idle, and check the load average first. Otherwise defer it
 and say so in `board_note`.
