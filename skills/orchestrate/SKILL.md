@@ -194,13 +194,17 @@ Per ticket:
    line:
    - **`LAUNCH`** (exit 0): the files meet no other live work, or only work a blocking edge
      already coordinates. Launch.
-   - **`STOP`** (exit 1): an uncoordinated meet, naming the other work. Stop and ask the user
-     (AskUserQuestion), naming it, with three choices: add a blocking edge (then record it with
-     `board.py apply` `blocked_by`), launch anyway (record the decision in `state.json` and on the
-     ticket), or hold the lane (`waiting-external`, naming what releases it).
-   - **`UNCHECKED`** (exit 2): the map could not decide, or the checkout or CLI is missing. Say
-     so to the user once, in plain words, and launch. Put it in the ticket's `note` in
-     `state.json` so the dashboard carries it. Never read it as no conflict.
+   - **`STOP`** (exit 1): the map reports a meet with other live work, naming it where it can.
+     Stop and ask the user (AskUserQuestion), naming it, with three choices:
+     - **Add a blocking edge.** Record it with `board.py apply` `blocked_by`; add the same blocker
+       to the ticket's `blocked_by` in `state.json` and set its status `blocked`, or
+       `waiting-external` naming what releases it when the blocker is outside this run. Then
+       recompute the frontier and launch something else: this ticket does not launch now.
+     - **Launch anyway.** Record the decision in `state.json` and on the ticket, then launch.
+     - **Hold the lane.** Status `waiting-external`, naming what releases it.
+   - **`UNCHECKED`** (exit 2): the map did not answer (it could not decide, or the checkout or CLI
+     is missing or too old). Say so to the user once, in plain words, and launch. Put it in the
+     ticket's `note` in `state.json` so the dashboard carries it. Never read it as no conflict.
 
    The check runs the architecture map's `conflicts` in an `opengwasdb-stores` checkout
    (`--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`) on this host, so the lanes
