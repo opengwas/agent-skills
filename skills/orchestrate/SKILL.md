@@ -356,9 +356,9 @@ Re-compute the frontier and launch whatever it opened.
 - **A follow-up that changes structure carries an `architecture` block.** When you file a
   follow-up that adds a module or component, moves code between components, or should remove
   an import between components, write the change in its body as one fenced block tagged
-  `architecture`, in the owner's format (#422). The board and work collectors read it, and the
-  map draws it. opengwasdb-stores' `docs/spec/project-site.md`, "Planned changes", is the
-  format.
+  `architecture`, in the owner's format (opengwas/opengwasdb-stores#422). The board and
+  work collectors read it, and the map draws it. opengwasdb-stores'
+  `docs/spec/project-site.md`, "Planned changes", is the format.
 
   ```architecture
   adds:
