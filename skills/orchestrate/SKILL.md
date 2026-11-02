@@ -188,7 +188,29 @@ Per ticket:
    - the work needs judgement on real data rather than following a precise spec.
 
    Escalating costs more per ticket but less than two failed rounds.
-4. **Launch.** `lane.py start <run-dir> <t> "<tab label>" <harness> <model> <worktree> <brief>`
+4. **Stop before a lane meets uncoordinated work.** Run
+   `<skill>/scripts/preflight.py --ticket <repo>#<t> --repo <engine|registry> --files <the paths
+   the ticket's notes and its brief give it>` before every `lane.py start`, and act on its last
+   line:
+   - **`LAUNCH`** (exit 0): the files meet no other live work, or only work a blocking edge
+     already coordinates. Launch.
+   - **`STOP`** (exit 1): an uncoordinated meet, naming the other work. Stop and ask the user
+     (AskUserQuestion), naming it, with three choices: add a blocking edge (then record it with
+     `board.py apply` `blocked_by`), launch anyway (record the decision in `state.json` and on the
+     ticket), or hold the lane (`waiting-external`, naming what releases it).
+   - **`UNCHECKED`** (exit 2): the map could not decide, or the checkout or CLI is missing. Say
+     so to the user once, in plain words, and launch. Put it in the ticket's `note` in
+     `state.json` so the dashboard carries it. Never read it as no conflict.
+
+   The check runs the architecture map's `conflicts` in an `opengwasdb-stores` checkout
+   (`--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`) on this host, so the lanes
+   that exist only here count; `--repo` takes `engine` for `opengwasdb` work and `registry` for
+   this repository's. Spell each path as the repository does, from its root: a path no claim
+   covers places nothing, and the verdict says how many components the files landed on. Only for
+   `opengwas/opengwasdb` and `opengwas/opengwasdb-stores` work, which have the map; another
+   repository skips the check, saying so.
+
+5. **Launch.** `lane.py start <run-dir> <t> "<tab label>" <harness> <model> <worktree> <brief>`
    creates the ticket's tab and both panes, starts the implementer, and sends the one-line
    pointer prompt. Run it with `run_in_background` so you are notified when the lane
    settles, instead of polling. [references/herdr-lanes.md](references/herdr-lanes.md)
