@@ -6,10 +6,10 @@
 
 Run from anywhere. It runs `conflicts` from the architecture CLI (#419, epic #416) in an
 opengwasdb-stores checkout — `--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores` —
-passing `--local` the host's own clones (`~/repo/opengwasdb`, `~/repo/opengwasdb-stores`) so
-that lanes which exist only on this host count. The files are the ones the ticket's notes and
-its brief assign it, spelled as the repository spells them. The ticket is the map's
-(`opengwasdb#338`); an `owner/repo#n` label is accepted and cut to that form.
+passing `--local` the host's own clones (`~/repo/opengwasdb`, `~/repo/opengwasdb-stores`, when
+they exist) so that lanes which exist only on this host count. The files are the ones the
+ticket's notes and its brief assign it, spelled as the repository spells them. The ticket is
+the map's (`opengwasdb#338`); an `owner/repo#n` label is accepted and cut to that form.
 
 Prints the CLI's own output, then one verdict line and its action as the exit status:
 
@@ -70,7 +70,10 @@ def run(args: argparse.Namespace) -> tuple[int, str]:
                "--ticket", args.ticket, "--files", *args.files]
     if args.repo:
         command += ["--repo", args.repo]
-    command += ["--local", *local_dirs(args.local), *args.extra]
+    local = local_dirs(args.local)
+    if local:
+        command += ["--local", *local]
+    command += args.extra
     try:
         done = subprocess.run(command, cwd=directory, capture_output=True, text=True, errors="replace",
                               timeout=args.timeout)
@@ -140,7 +143,8 @@ def main(argv: Sequence[str]) -> int:
                         help="the files the ticket will touch, from the repository's root")
     parser.add_argument("--stores", default=None, help=f"opengwasdb-stores checkout (default: $ORCH_STORES, {DEFAULT_STORES})")
     parser.add_argument("--local", nargs="+", default=[], metavar="GIT_DIR",
-                        help="clones whose local branches count (default: " + ", ".join(str(p) for p in DEFAULT_LOCAL) + ")")
+                        help="clones whose local branches count (default: the ones that exist of "
+                             + ", ".join(str(p) for p in DEFAULT_LOCAL) + ")")
     parser.add_argument("--repo", choices=("engine", "registry"), default=None,
                         help="the ticket's repository, so its paths are read against that repository's claims")
     parser.add_argument("--timeout", type=int, default=900, help="seconds to wait for the map (default: 900)")
