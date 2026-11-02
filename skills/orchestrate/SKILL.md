@@ -209,10 +209,10 @@ Per ticket:
    The check runs the architecture map's `conflicts` in an `opengwasdb-stores` checkout
    (`--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`) on this host, so the lanes
    that exist only here count; `--repo` takes `engine` for `opengwasdb` work and `registry` for
-   this repository's. Spell each path as the repository does, from its root: a path no claim
-   covers places nothing, and the verdict says how many components the files landed on. Only for
-   `opengwas/opengwasdb` and `opengwas/opengwasdb-stores` work, which have the map; another
-   repository skips the check, saying so.
+   `opengwasdb-stores` work. Spell each path as the repository does, from its root: a path no
+   claim covers places nothing, and the verdict says how many components the files landed on.
+   Only for `opengwas/opengwasdb` and `opengwas/opengwasdb-stores` work, which have the map;
+   another repository skips the check, saying so.
 
 5. **Launch.** `lane.py start <run-dir> <t> "<tab label>" <harness> <model> <worktree> <brief>`
    creates the ticket's tab and both panes, starts the implementer, and sends the one-line
@@ -353,6 +353,19 @@ Re-compute the frontier and launch whatever it opened.
   except for a Store build operation whose command, host, budget and publication
   effect the user explicitly approved under [the Store build gates](references/store-builds.md).
   If a permission prompt blocks an action, stop and tell the user why it's needed.
+- **A follow-up that changes structure carries an `architecture` block.** When you file a
+  follow-up that adds a module or component, moves code between components, or should remove
+  an import between components, write the change in its body as one fenced block tagged
+  `architecture`, in the owner's format (opengwas/opengwasdb-stores#422). The board and
+  work collectors read it, and the map draws it. opengwasdb-stores'
+  `docs/spec/project-site.md`, "Planned changes", is the format.
+
+  ```architecture
+  adds:
+    - paths: [opengwasdb/encoding/association.py]
+      component: encoding
+  drops: [dense -> encoding]
+  ```
 - **Report in a fixed shape** (see [references/brief-template.md](references/brief-template.md)): results with evidence,
   commits, decisions taken, decisions needed. Keep it to about 400 words. Reports that
   ramble cost your context on every lane.

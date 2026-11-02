@@ -71,9 +71,12 @@ class Preflight(unittest.TestCase):
     def tearDown(self) -> None:
         self._tmp.cleanup()
 
-    def run_preflight(self, *extra: str, path: str | None = None) -> subprocess.CompletedProcess:
+    def run_preflight(self, *extra: str, path: str | None = None,
+                      home: Path | None = None) -> subprocess.CompletedProcess:
         environment = {**os.environ, "PATH": path if path is not None else self.path}
         environment.pop("ORCH_STORES", None)
+        if home is not None:
+            environment["HOME"] = str(home)
         return subprocess.run(
             [sys.executable, str(SCRIPT), "--ticket", "opengwas/opengwasdb#338",
              "--files", "opengwasdb/store/convert.py", "opengwasdb/query/facade.py", *extra],
@@ -219,6 +222,23 @@ class Preflight(unittest.TestCase):
         self.assertIn("--ticket opengwasdb#338", calls)
         self.assertIn("--files opengwasdb/store/convert.py opengwasdb/query/facade.py", calls)
         self.assertIn("--local /nonexistent/engine", calls)
+
+    def test_counts_the_host_clones_that_are_there(self) -> None:
+        pixi(self.tmp, 0, "meets no other work")
+        home = self.tmp / "home"
+        for clone in ("opengwasdb", "opengwasdb-stores"):
+            (home / "repo" / clone / ".git").mkdir(parents=True)
+        self.assertVerdict(self.run_preflight("--stores", str(self.stores), home=home), "LAUNCH", 0)
+        calls = (self.tmp / "pixi-args.txt").read_text()
+        self.assertIn(f"--local {home}/repo/opengwasdb {home}/repo/opengwasdb-stores", calls)
+
+    def test_omits_local_when_the_host_has_no_clone(self) -> None:
+        # The CLI refuses an empty `--local`, so sending one turns a valid check into UNCHECKED.
+        pixi(self.tmp, 0, "meets no other work")
+        home = self.tmp / "home"
+        home.mkdir()
+        self.assertVerdict(self.run_preflight("--stores", str(self.stores), home=home), "LAUNCH", 0)
+        self.assertNotIn("--local", (self.tmp / "pixi-args.txt").read_text())
 
 
 if __name__ == "__main__":
