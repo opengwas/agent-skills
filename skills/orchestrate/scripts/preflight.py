@@ -4,9 +4,10 @@
     preflight.py --ticket <repo#n> --files <path>... [--stores DIR] [--local GIT_DIR...]
                  [--repo engine|registry] [--timeout S] [-- <architecture conflicts flags>]
 
-Run from anywhere. It runs `conflicts` from the architecture CLI (#419, epic #416) in an
-opengwasdb-stores checkout — `--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores` —
-passing `--local` the host's own clones (`~/repo/opengwasdb`, `~/repo/opengwasdb-stores`, when
+Run from anywhere. It runs `conflicts --refresh` from the architecture CLI (#419, epic #416) in an
+opengwasdb-stores checkout: `--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`.
+`--refresh` fetches the engine and both repositories' branches before the map answers. It passes
+`--local` the host's own clones (`~/repo/opengwasdb`, `~/repo/opengwasdb-stores`, when
 they exist) so that lanes which exist only on this host count. The files are the ones the
 ticket's notes and its brief assign it, spelled as the repository spells them. The ticket is
 the map's (`opengwasdb#338`); an `owner/repo#n` label is accepted and cut to that form.
@@ -66,7 +67,9 @@ def run(args: argparse.Namespace) -> tuple[int, str]:
     missing = [p for p in ("pixi.toml", "src/project_site/architecture.py") if not (directory / p).exists()]
     if missing:
         return 2, f"no architecture CLI at {directory}: {', '.join(missing)} is not there"
-    command = ["pixi", "run", "-e", "dev", "architecture", "conflicts",
+    # `--refresh` fetches the engine and both repositories' branches first; without it the map
+    # answers from whatever was last fetched, and misses a branch pushed since.
+    command = ["pixi", "run", "-e", "dev", "architecture", "conflicts", "--refresh",
                "--ticket", args.ticket, "--files", *args.files]
     if args.repo:
         command += ["--repo", args.repo]
