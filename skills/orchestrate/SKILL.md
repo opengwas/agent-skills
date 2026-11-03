@@ -188,7 +188,33 @@ Per ticket:
    - the work needs judgement on real data rather than following a precise spec.
 
    Escalating costs more per ticket but less than two failed rounds.
-4. **Launch.** `lane.py start <run-dir> <t> "<tab label>" <harness> <model> <worktree> <brief>`
+4. **Stop before a lane meets uncoordinated work.** Run
+   `<skill>/scripts/preflight.py --ticket <repo>#<t> --repo <engine|registry> --files <the paths
+   the ticket's notes and its brief give it>` before every `lane.py start`, and act on its last
+   line:
+   - **`LAUNCH`** (exit 0): the files meet no other live work, or only work a blocking edge
+     already coordinates. Launch.
+   - **`STOP`** (exit 1): the map reports a meet with other live work, naming it where it can.
+     Stop and ask the user (AskUserQuestion), naming it, with three choices:
+     - **Add a blocking edge.** Record it with `board.py apply` `blocked_by`; add the same blocker
+       to the ticket's `blocked_by` in `state.json` and set its status `blocked`, or
+       `waiting-external` naming what releases it when the blocker is outside this run. Then
+       recompute the frontier and launch something else: this ticket does not launch now.
+     - **Launch anyway.** Record the decision in `state.json` and on the ticket, then launch.
+     - **Hold the lane.** Status `waiting-external`, naming what releases it.
+   - **`UNCHECKED`** (exit 2): the map did not answer (it could not decide, or the checkout or CLI
+     is missing or too old). Say so to the user once, in plain words, and launch. Put it in the
+     ticket's `note` in `state.json` so the dashboard carries it. Never read it as no conflict.
+
+   The check runs the architecture map's `conflicts` in an `opengwasdb-stores` checkout
+   (`--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`) on this host, so the lanes
+   that exist only here count; `--repo` takes `engine` for `opengwasdb` work and `registry` for
+   `opengwasdb-stores` work. Spell each path as the repository does, from its root: a path no
+   claim covers places nothing, and the verdict says how many components the files landed on.
+   Only for `opengwas/opengwasdb` and `opengwas/opengwasdb-stores` work, which have the map;
+   another repository skips the check, saying so.
+
+5. **Launch.** `lane.py start <run-dir> <t> "<tab label>" <harness> <model> <worktree> <brief>`
    creates the ticket's tab and both panes, starts the implementer, and sends the one-line
    pointer prompt. Run it with `run_in_background` so you are notified when the lane
    settles, instead of polling. [references/herdr-lanes.md](references/herdr-lanes.md)
@@ -327,6 +353,19 @@ Re-compute the frontier and launch whatever it opened.
   except for a Store build operation whose command, host, budget and publication
   effect the user explicitly approved under [the Store build gates](references/store-builds.md).
   If a permission prompt blocks an action, stop and tell the user why it's needed.
+- **A follow-up that changes structure carries an `architecture` block.** When you file a
+  follow-up that adds a module or component, moves code between components, or should remove
+  an import between components, write the change in its body as one fenced block tagged
+  `architecture`, in the owner's format (opengwas/opengwasdb-stores#422). The board and
+  work collectors read it, and the map draws it. opengwasdb-stores'
+  `docs/spec/project-site.md`, "Planned changes", is the format.
+
+  ```architecture
+  adds:
+    - paths: [opengwasdb/encoding/association.py]
+      component: encoding
+  drops: [dense -> encoding]
+  ```
 - **Report in a fixed shape** (see [references/brief-template.md](references/brief-template.md)): results with evidence,
   commits, decisions taken, decisions needed. Keep it to about 400 words. Reports that
   ramble cost your context on every lane.
