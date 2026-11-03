@@ -223,6 +223,13 @@ class Preflight(unittest.TestCase):
         self.assertIn("--files opengwasdb/store/convert.py opengwasdb/query/facade.py", calls)
         self.assertIn("--local /nonexistent/engine", calls)
 
+    def test_asks_the_map_to_fetch_first(self) -> None:
+        # Without a fetch the map reads the engine and branches as they were last fetched: a
+        # branch pushed since is missed, and the verdict looks current while it is not.
+        pixi(self.tmp, 0, "meets no other work")
+        self.run_preflight("--stores", str(self.stores))
+        self.assertIn("--refresh", (self.tmp / "pixi-args.txt").read_text().split())
+
     def test_counts_the_host_clones_that_are_there(self) -> None:
         pixi(self.tmp, 0, "meets no other work")
         home = self.tmp / "home"
