@@ -100,6 +100,12 @@ tickets only when the upstream stage's full criteria are satisfied.
   `waiting-external`. Name exactly what releases it.
 - **Prerequisite tickets in sibling repos** that nothing else blocks start immediately, in
   parallel lanes.
+- **Contract changes reach the sibling repo inside the run.** When a ticket changes what a
+  sibling repo consumes (CLI options or output, JSON keys, manifest columns, artifact
+  formats), the sibling's update is a ticket and a lane of this run. Find those dependents
+  while planning (step 4). The lane builds against the integration tip, and its PR opens
+  as a draft beside the epic's PR. Once the owner merges the epic's PR, move the sibling's
+  pin to the merge commit and mark its PR ready.
 - Follow the tracker conventions that the repo's agent instructions point to. For the
   opengwas repos, they are in the project board's README.
 - If the epic lists its tickets in a body table instead of as native sub-issues, attach
@@ -326,7 +332,7 @@ Re-compute the frontier and launch whatever it opened.
      repo's validator, fix what it names, and commit it. Rerun it when a deferred yardstick lands.
    - Version notes for the epic PR are the lanes' changelog fragments.
 4. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
-   follow-up issues filed, and anything left in `waiting-external`. Set `board_note` to
+   the sibling-repo PRs, follow-up issues filed, and anything left in `waiting-external`. Set `board_note` to
    "ready for your review" and run `sync-run` once more.
 5. Don't merge the PR into the base branch. That review is the user's.
 6. Clean up the worktrees, and the Herdr tabs and panes this run created, and nothing else.
@@ -353,6 +359,14 @@ Re-compute the frontier and launch whatever it opened.
   except for a Store build operation whose command, host, budget and publication
   effect the user explicitly approved under [the Store build gates](references/store-builds.md).
   If a permission prompt blocks an action, stop and tell the user why it's needed.
+- **File few tickets.** Each note a lane reports outside its ticket, and each review
+  finding outside the ticket, ends one of three ways:
+  - **fixed** in that lane, when it is small and in files the lane touches;
+  - **filed**, when it meets the tracker's filing bar (in the opengwas repos, the board
+    README's conventions);
+  - **named** once on the dashboard, and left.
+
+  Propose a ticket to the user only when it is filed.
 - **A follow-up that changes structure carries an `architecture` block.** When you file a
   follow-up that adds a module or component, moves code between components, or should remove
   an import between components, write the change in its body as one fenced block tagged
