@@ -32,6 +32,7 @@ You are implementing <repo> issue #<n>, part of epic #<epic>.
 ## Lane ownership (parallel lanes are running)
 - You own: <files / regions / new modules>.
 - Stay out of: <files / regions owned by #x, #y>. If you must touch them, keep it minimal and additive, and say so in your report.
+- A small defect you meet in files you own: fix it here, in its own commit, and list it under Decisions taken.
 
 ## What to build
 <Two to six lines naming the deliverable in the ticket's own terms. Pointers, not a restatement.>

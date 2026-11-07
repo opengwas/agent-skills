@@ -23,9 +23,12 @@ import sys
 
 OWNER = "opengwas"
 PROJECT = 1
-REPOS = ["opengwasdb", "opengwasdb-stores"]
+# Every repo the board README says the board covers.
+REPOS = ["opengwasdb", "opengwasdb-stores", "opengwasdb-website", "ogdb-api"]
 CACHE = os.path.expanduser("~/.cache/board")
-RUN_DIRS = [os.path.expanduser("~/.cache/orchestrate")]
+# Orchestrate keeps runs in both places: ~/.cache for older runs, /data for runs
+# whose worktrees need the large disk.
+RUN_DIRS = [os.path.expanduser("~/.cache/orchestrate"), "/data/opengwasdb/work/orchestrate"]
 EPIC_LABELS = {"complexity:epic", "epic"}
 
 
