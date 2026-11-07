@@ -15,7 +15,7 @@ Optional `state.json` keys it copies, set them as you learn them:
 | Key | Becomes |
 |---|---|
 | `workstream` | `workstream` (a board Workstream; `board.py` shows it) |
-| `finished` | an ISO date: the epic issue is closed. Otherwise `status: active`, `finished: null`. A finished run does not finish its epic: the owner's merge does. |
+| `finished` | an ISO date: the epic issue is closed. Otherwise `status: active`, `finished: null`. A finished run does not finish its epic: the epic PR's merge does. |
 | `yardstick`, `catalog` | `{before, after}` |
 | `versions` | tags the PRs shipped |
 

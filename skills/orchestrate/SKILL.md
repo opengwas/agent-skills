@@ -104,8 +104,9 @@ tickets only when the upstream stage's full criteria are satisfied.
   sibling repo consumes (CLI options or output, JSON keys, manifest columns, artifact
   formats), the sibling's update is a ticket and a lane of this run. Find those dependents
   while planning (step 4). The lane builds against the integration tip, and its PR opens
-  as a draft beside the epic's PR. Once the owner merges the epic's PR, move the sibling's
-  pin to the merge commit and mark its PR ready.
+  as a draft beside the epic's PR. Once the epic's PR merges, move the sibling's pin to
+  the merge commit, mark its PR ready and merge it under the sibling repo's merge rules
+  (step 10). An opengwasdb pin move in opengwasdb-stores merges itself.
 - Follow the tracker conventions that the repo's agent instructions point to. For the
   opengwas repos, they are in the project board's README.
 - If the epic lists its tickets in a body table instead of as native sub-issues, attach
@@ -146,7 +147,7 @@ survive the switch.
 
 Tickets close as they merge into the integration branch (step 9), so the PR body needs no
 closing keywords for them. Keywords fire only when the base is the default branch. With
-base `main`, `Closes #<epic>` closes the epic when the owner merges; on any other base it
+base `main`, `Closes #<epic>` closes the epic when the PR merges; on any other base it
 wouldn't fire, and the owner closes the epic.
 
 5. Run `lane.py init <run-dir> "<epic name>"` to rename your tab.
@@ -332,9 +333,13 @@ Re-compute the frontier and launch whatever it opened.
      repo's validator, fix what it names, and commit it. Rerun it when a deferred yardstick lands.
    - Version notes for the epic PR are the lanes' changelog fragments.
 4. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
-   the sibling-repo PRs, follow-up issues filed, and anything left in `waiting-external`. Set `board_note` to
-   "ready for your review" and run `sync-run` once more.
-5. Don't merge the PR into the base branch. That review is the user's.
+   the sibling-repo PRs, follow-up issues filed, and anything left in `waiting-external`.
+5. Merge under the repo's merge rules: "Merging" in its `CLAUDE.md` or `AGENTS.md`.
+   - If no owner gate applies, queue it with `gh pr merge <pr> --auto --merge`, set
+     `board_note` to "queued: merges when checks pass", and run `sync-run`.
+   - If one applies, or the repo has no merge rules, don't merge. Name the gate on the
+     dashboard, set `board_note` to "ready for your review: <gate>", and run `sync-run`.
+   - Never `--admin`. A red required check is a ticket to fix, not a gate to step around.
 6. Clean up the worktrees, and the Herdr tabs and panes this run created, and nothing else.
 
 ## Guardrails that save the most time
@@ -354,8 +359,8 @@ Re-compute the frontier and launch whatever it opened.
   verification step, not as a unit test.
 - **Nothing outward without the user.** You push branches, comment on tickets, and close
   tickets as they merge into the integration branch, reopening any the final review sends
-  back. You also keep the epic's board fields current. You don't
-  merge to the base branch or delete remote branches. Publishing is also off-limits
+  back. You also keep the epic's board fields current. You merge to the base branch only
+  as step 10 says, and you don't delete remote branches. Publishing is also off-limits
   except for a Store build operation whose command, host, budget and publication
   effect the user explicitly approved under [the Store build gates](references/store-builds.md).
   If a permission prompt blocks an action, stop and tell the user why it's needed.

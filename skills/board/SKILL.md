@@ -71,7 +71,7 @@ Work through the report and propose changes.
   - A criterion line with no reference needs evidence before you tick it.
   - An MVP that no issue delivers is a gap. Propose an issue for it, or flag it as a decision.
 - **Epics not on the board.** Either add them with Workstream and Status, or propose closing them as superseded and name what superseded them.
-- **Finished epics.** An epic whose sub-issues are all closed, and whose integration PR (if any) has merged into the base branch, gets closed and set to Done. If the PR hasn't merged, the epic is waiting on the user's review. Say so in Next.
+- **Finished epics.** An epic whose sub-issues are all closed, and whose integration PR (if any) has merged into the base branch, gets closed and set to Done. If the PR hasn't merged, it is either queued to merge when its checks pass, or waiting on the user's review because one of the repo's owner gates applies (the run's `board_note` names which). Say which in Next.
 - **Tickets on the board.** Archive them.
 - **Ticket tables.** An epic that lists its tickets in a body table gets them attached as sub-issues (`parent` ops). Skip any ticket that already has a parent, unless the user agrees to move it.
 - **Inbox.** For each unplaced issue, propose one of:
