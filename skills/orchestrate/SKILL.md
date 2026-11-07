@@ -334,7 +334,7 @@ Re-compute the frontier and launch whatever it opened.
    - Version notes for the epic PR are the lanes' changelog fragments.
 4. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
    the sibling-repo PRs, follow-up issues filed, and anything left in `waiting-external`.
-5. Merge under the repo's merge rules: "Merging" in its `CLAUDE.md` or `AGENTS.md`.
+5. Merge under the repo's merge rules, which its `CLAUDE.md` or `AGENTS.md` states or points to.
    - If no owner gate applies, queue it with `gh pr merge <pr> --auto --merge`, set
      `board_note` to "queued: merges when checks pass", and run `sync-run`.
    - If one applies, or the repo has no merge rules, don't merge. Name the gate on the
