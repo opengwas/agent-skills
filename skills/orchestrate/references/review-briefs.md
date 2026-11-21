@@ -30,6 +30,18 @@ Also apply the smell baseline in `~/.agents/skills/code-review/SKILL.md` (sectio
 Look hard at:
 <the orchestrator's specific worries for this ticket, e.g. a lock's scope, a silent default, duplicated helpers, test independence>
 
+**Owners and YAGNI.** Each operation has one owner, the function or module that does it.
+- The brief lists the owners the lane was told to call, and where new code goes:
+  `<run-dir>/briefs/<n>.md`. The report's **Owners** line says what it called and what it added.
+- For every function, class and constant the diff adds, search `<integration>` for code
+  that already does the job (`git grep`, by name and by what it computes). A copy, a
+  near-copy, or a re-derivation of what an owner computes is a hard violation: name the
+  owner to call instead.
+- Flag code beyond the ticket: options nothing uses, a layer with one caller, generality
+  for a later ticket.
+- Flag new code placed outside the component that owns its concern, and new imports
+  between components that the repo's architecture doesn't allow.
+
 **Test cost.** Efficient tests are a standard here.
 - The implementer's report gives base and head timings for the affected suites, and the
   full-suite wall time: `<run-dir>/reports/<n>.md`.
@@ -58,7 +70,7 @@ Work in `<worktree>`.
 Spec sources:
 - `gh issue view <n> --comments`. Comments may amend the acceptance criteria; the latest decision wins.
 - <ADR paths and the lines that bind this ticket>.
-- The orchestrator's brief at `<run-dir>/briefs/<n>.md` (scope, ownership, seams).
+- The orchestrator's brief at `<run-dir>/briefs/<n>.md` (scope, files, owners, seams).
 
 The implementer made these decisions; judge each one against the spec:
 <numbered list from the implementer's report>
@@ -79,6 +91,9 @@ You are the judge. For each finding, decide fix, accept with a reason, or reject
 reason. Then write the fix list.
 
 Give extra weight to these findings, because they recur:
+- a second implementation of an operation that already has an owner, including two lanes
+  each writing the same helper;
+- code beyond the ticket: options, layers or generality nothing asked for;
 - silent defaults or fallbacks in place of a loud failure;
 - tests that can't fail: tautological expectations, or fixtures that never reach the code path;
 - a cache, resume or reuse path that recomputes or diverges on revisit;

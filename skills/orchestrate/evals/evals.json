@@ -14,7 +14,8 @@
         "reviewer: per-ticket review is assigned to gpt-6.1-sol (or a stated fallback), separate from the implementer",
         "state-aware: recognises #249, #283 and #285 as merged and #296/#297/#298 as open PRs not to redo",
         "in-flight: notices #287 is already being worked (worktree ~/repo/opengwasdb-stores-wt/287-pipeline) and does not launch a duplicate",
-        "blockers: #288/#290 wait on #287; #289 names #222 (OGS-00009 2.5k); #291 names #287 and the opengwasdb pin bump/strand issue; #292 part 2 names #287/#222"
+        "blockers: #288/#290 wait on #287; #289 names #222 (OGS-00009 2.5k); #291 names #287 and the opengwasdb pin bump/strand issue; #292 part 2 names #287/#222",
+        "owners: each frontier ticket's notes list Touches, Owners (existing path:symbol to call) and New (module and interface); each brief carries an 'Owners: call them' section from them"
       ]
     },
     {

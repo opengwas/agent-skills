@@ -78,7 +78,7 @@ If the user asks for a plan, preview or dry run, change nothing outside the run 
 no branches, worktrees, pushes, PRs, issue comments, board updates or Herdr panes. Do steps 1, 2 and 4,
 then write to the run directory:
 - `plan.md`: the task graph, the frontier, the waiting-external tickets and what releases
-  each, a merge order, and per frontier ticket the lane, harness, model, ownership and why;
+  each, a merge order, and per frontier ticket the lane, harness, model, files, owners and why;
 - `state.json`;
 - `briefs/<t>.md` for each frontier ticket;
 - `dashboard.md` (`dashboard.py <run-dir>` without `--apply`).
@@ -161,10 +161,26 @@ wouldn't fire, and the owner closes the epic.
 Running lanes in parallel only pays off if they don't collide at merge time. For the
 frontier:
 
-- **Ownership.** Run one exploration subagent (cheap model) to list the files and regions
-  each ticket will touch. It writes `notes/<t>.md` so workers don't each re-explore.
-- **Assign ownership in the briefs.** For example: "you own `freeze.py` and the new
-  modules; #284 owns lines 1010–1835 of `candidate_workflow.py`; stay out".
+- **Survey for owners.** Every operation in a repo has one **owner**: the one function or
+  module that does it, which everything else calls. Workers on cheap models reimplement an
+  owner they never found, so the survey finds owners for them. Run one exploration subagent
+  (cheap model). It writes `notes/<t>.md` for each frontier ticket, with three lists:
+  - **Touches:** the files and regions the ticket will edit.
+  - **Owners:** for each operation the ticket needs (parse, look up, encode, validate,
+    write, ...), the existing owner as `path:line symbol`. Read the repo's owner map first
+    (`docs/architecture/ownership.md`, `docs/architecture/components.yaml`), then search.
+  - **New:** each operation that has no owner yet, with the module it belongs in and its
+    interface, at a layer the repo's architecture allows.
+
+  The survey is done when every operation the acceptance criteria need sits in Owners or
+  New. Then check each New entry yourself, by searching for the operation's obvious names:
+  an owner the survey missed becomes a duplicate.
+- **One owner across the frontier.** When two frontier tickets need the same new
+  operation, give it to one of them. The other imports it, through a blocking edge or the
+  merge order, or the operation becomes a small ticket that runs first. Each operation is
+  written once, by one lane.
+- **Assign each lane its files in the brief.** For example: "your files are `freeze.py` and
+  the new modules; #284 has lines 1010–1835 of `candidate_workflow.py`; stay out".
 - **Schedule real conflicts.** Where two tickets must edit the same region, serialise them,
   or have the later one merge the earlier one's branch and resolve. Decide the merge order
   now.
@@ -181,7 +197,8 @@ Per ticket:
 2. **Brief.** Write `briefs/<t>.md` from [references/brief-template.md](references/brief-template.md). Point at the
    ticket, the ADRs and the notes rather than restating them. Spell out:
    - worktree, branch and environment setup;
-   - lane ownership;
+   - the owners to call, and where new code goes, from the survey;
+   - the lane's files;
    - seams;
    - stop-and-report gates;
    - the commit trailer;
@@ -313,8 +330,9 @@ Re-compute the frontier and launch whatever it opened.
    `test_time.baseline`, and put the comparison on the dashboard. Explain any growth past
    10% ticket by ticket, or fix it before marking the PR ready.
 2. Review the whole integration branch against the base branch. Use the same two
-   briefs, with the fixed point set to the base branch, run in a `final` ticket tab. Fix
-   the findings in one lane.
+   briefs, with the fixed point set to the base branch, run in a `final` ticket tab. The
+   Standards brief also asks for duplication *across* tickets: one operation written in
+   two lanes' code, which no per-ticket review can see. Fix the findings in one lane.
 
    If a finding sends a merged ticket's work back:
    - reopen the ticket with `gh issue reopen <n> --comment "<why>"`;

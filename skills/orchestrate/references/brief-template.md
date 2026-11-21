@@ -3,7 +3,7 @@
 Write one brief per ticket to `briefs/<ticket>.md`. Fill every `<…>`. Delete any section
 that doesn't apply rather than leaving it empty.
 
-A brief is **pointers plus the things only you know**: ownership, seams, gates and
+A brief is **pointers plus the things only you know**: owners, the lane's files, seams, gates and
 decisions already taken. The worker reads the ticket, ADRs and notes itself, so don't
 paste them in.
 
@@ -29,14 +29,24 @@ You are implementing <repo> issue #<n>, part of epic #<epic>.
 - If a contract or schema changes, its spec goes in the same commit. Every commit must import and pass on its own.
 - Don't push. Don't open PRs.
 
-## Lane ownership (parallel lanes are running)
-- You own: <files / regions / new modules>.
+## Your files (parallel lanes are running)
+- Your files: <files / regions / new modules>.
 - Stay out of: <files / regions owned by #x, #y>. If you must touch them, keep it minimal and additive, and say so in your report.
 - A small defect you meet in files you own: fix it here, in its own commit, and list it under Decisions taken.
 
 ## What to build
 <Two to six lines naming the deliverable in the ticket's own terms. Pointers, not a restatement.>
 <Decisions already taken that the ticket doesn't record, with their reasons.>
+
+## Owners: call them
+Each operation in this repo has one owner, the function or module that does it. Call it.
+- <operation>: `<path:symbol>`. <how to call it, when that isn't obvious>
+- New: <operation> goes in `<module>` as `<signature>`. <who may import it>
+
+For any other operation you need, search the repo for its owner before you write it, and
+call what you find. When an owner nearly fits, extend it in place if it is in your files;
+otherwise stop and report. Build the YAGNI version: the smallest change that meets the
+acceptance criteria, with new code in small modules behind narrow interfaces.
 
 ## TDD: pre-agreed seams
 Use the `tdd` skill. Test only at these seams; write each test first and watch it fail:
@@ -50,6 +60,7 @@ Stop, commit what you have, and report if:
 - <a spec gap you can foresee, e.g. "normalising would change a published bundle's values">
 - the work needs a change in <other repo / shared contract> beyond what this brief allows
 - a needed decision isn't covered by the ticket, its comments, or this brief
+- an owner you need doesn't fit, and changing it reaches outside your files
 
 ## Before you report
 - Typecheck or compile the touched modules, then run the affected suites.
@@ -69,6 +80,7 @@ in this shape:
 - **Evidence:** suite counts with log paths, verification diffs with paths, and the test you saw fail first.
 - **Test time:** for each affected suite, base and head seconds, and the full-suite wall time; justify any growth.
 - **Commits:** the hashes and subjects.
+- **Owners:** each existing owner you called; each new function you wrote, with the search that found no owner for it.
 - **Decisions taken:** what, and why.
 - **Decisions needed:** the question, the options with counts or examples, your recommendation.
 - **Outside your lane:** anything you touched outside it, and why.
