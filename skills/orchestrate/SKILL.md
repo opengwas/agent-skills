@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: "Orchestrate the implementation of a GitHub epic (or any spec broken into tickets with blocking links) with parallel worker agents in Herdr panes: cheap models implement test-first, a stronger model reviews each ticket, and an integration branch with a live draft PR tracks everything until one final review."
+description: "Orchestrate the implementation of a GitHub epic (or any spec broken into tickets with blocking links) with parallel worker agents in Herdr panes: flat-rate models implement test-first, a model from another family reviews each ticket, and an integration branch with a live draft PR tracks everything until one final review."
 disable-model-invocation: true
 ---
 
@@ -122,12 +122,40 @@ hold an expired key or an exhausted plan. Record the live chains in `state.json`
 
 | Role | Chain (first live wins) | Harness |
 |---|---|---|
-| Implementer | `opencode-go/deepseek-v4.1-flash` → `deepseek/deepseek-flash` → Claude Haiku 5.5 | pi, pi, Claude Code (`claude --model claude-haiku-5-5`) |
-| Reviewer | `openai-codex/gpt-6.1-sol` → Claude Opus | pi, then Claude Code, in the ticket's reviewer pane |
-| Escalation implementer | Claude Sonnet or Opus | Claude Code, in the ticket's implementer pane |
+| Orchestrator (you) | Claude Opus 5.5 → Fable 5.2 → Sonnet 5.5 for quiet monitoring stretches | Claude Code: this skill and Herdr run there |
+| Implementer | `opencode-go/kimi-k3.1-pro` → Claude Sonnet 5.5 | pi, then Claude Code (`claude --model claude-sonnet-5-5`) |
+| Escalation implementer | Claude Opus 5.5 → `openai-codex/gpt-6.2-sol` | Claude Code, then pi, in the ticket's implementer pane |
+| Reviewer | `openai-codex/gpt-6.2-sol` → `openai-codex/gpt-6.2-astra` → Claude Opus 5.5 | pi, pi, Claude Code, in the ticket's reviewer pane |
+| Cheap lane (opt-in) | `opencode-go/glm-5.3-flash` → `opencode-go/deepseek-v4.1-flash` | pi; only for trivial, tightly specified tickets, chosen per ticket |
+| Owner survey (step 4) | Claude Haiku 5.5 → `gemini-3.8-flash` | an Explore subagent; else the Gemini CLI headless (below) |
 
-Haiku runs through Claude Code rather than pi, because pi's Anthropic route bills
-third-party usage separately.
+Why the chains look like this (chosen 21 Nov 2026):
+- **Strength.** On Vals AI's Terminal-Bench 4.0 (one harness for every model, mean of three
+  runs), Kimi K3.1 Pro scores 63.6% and Sonnet 5.5 64.1%, against 19.7–37.4% for the flash
+  models (DeepSeek V4.1 Flash, GLM 5.3 Flash) and 36.4% for Haiku 5.5. The gap is about 3×,
+  and the flash models also use about ten times the tokens per task, so they are no longer
+  the economical default. They stay as an opt-in cheap lane.
+- **Families stay apart.** The implementers (Kimi, Claude) and the orchestrator (Claude)
+  are different families from the reviewer (OpenAI), so a reviewer does not share the
+  blind spots of the code it reviews. Codex implements only as the last escalation, and
+  that ticket is then reviewed by Claude Opus.
+- **Subscription headroom.** The user's Codex and Claude plans have the most headroom, so
+  the reviewer (Codex, which runs two axes per ticket per round) and the fallback
+  implementer (Sonnet) sit there. Kimi is first because it is strong and on the flat-rate
+  opencode-go plan. When Kimi's quota runs out, move every new lane to Sonnet rather than
+  waiting.
+- **Billing.** The metered DeepSeek API (`deepseek/deepseek-flash`) is in no chain; use it
+  only as paid overflow when the user agrees. Claude models run through Claude Code rather
+  than pi, because pi's Anthropic route bills third-party usage separately.
+
+**New language or repo: compare before you commit.** For an epic in a language the chain
+has no track record in (R, for example), run the first two or three tickets on both
+implementer models (Kimi K3.1 Pro and Sonnet 5.5) and record review rounds per ticket in
+`state.json` under `model_trial`. Put the better one first for the rest of the run, and say so on the dashboard.
+
+The Gemini CLI survey call, when Haiku is not live:
+`GEMINI_CLI_TRUST_WORKSPACE=true gemini -m gemini-3.8-flash -p "<pointer to the survey brief>"`,
+run from the worktree. Without the trust variable it refuses to run headless.
 
 Re-probe when a lane dies with an auth, quota or credit error. Mark that model dead in
 `state.json` and restart the lane on the next live model. The lane's worktree and commits
@@ -162,9 +190,9 @@ Running lanes in parallel only pays off if they don't collide at merge time. For
 frontier:
 
 - **Survey for owners.** Every operation in a repo has one **owner**: the one function or
-  module that does it, which everything else calls. Workers on cheap models reimplement an
+  module that does it, which everything else calls. Workers reimplement an
   owner they never found, so the survey finds owners for them. Run one exploration subagent
-  (cheap model). It writes `notes/<t>.md` for each frontier ticket, with three lists:
+  (the owner-survey chain in step 2). It writes `notes/<t>.md` for each frontier ticket, with three lists:
   - **Touches:** the files and regions the ticket will edit.
   - **Owners:** for each operation the ticket needs (parse, look up, encode, validate,
     write, ...), the existing owner as `path:line symbol`. Read the repo's owner map first
@@ -205,10 +233,10 @@ Per ticket:
    - in a repo with `changelog.d/`, the ticket's changelog fragment, per CONTRIBUTING;
    - "don't push";
    - the report path and format.
-3. **Model.** Default to the implementer chain. Escalate to Claude Code (Sonnet, or Opus
-   for the hardest) in the same pane when:
+3. **Model.** Default to the implementer chain. Escalate along the escalation chain
+   (Claude Opus 5.5) in the same pane when:
    - the ticket designs a contract, schema or cross-cutting refactor;
-   - a flash lane has failed twice;
+   - a lane has failed twice;
    - the work needs judgement on real data rather than following a precise spec.
 
    Escalating costs more per ticket but less than two failed rounds.
@@ -265,7 +293,7 @@ pane scrollback; it is the most expensive way to learn little.
    Check the report's test timings, base against head, for the affected suites.
 
    Workers misreport. One counted test suites from a notification it never checked.
-   Cheap models also leak brief phrasing into docs ("measure it, do not claim it") and
+   Workers also leak brief phrasing into docs ("measure it, do not claim it") and
    mangle commit trailers. Read the diff's prose and trailers.
 3. If the worker stopped at a gate, see step 8.
 

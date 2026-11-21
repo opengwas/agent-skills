@@ -22,8 +22,8 @@ run_in_background):
   lane.py stop    <run-dir> <ticket>               close the ticket's tab (only tabs this run made)
   lane.py cleanup <run-dir>                        close every ticket tab this run made
 
-<harness> is `pi` (any pi model: deepseek/deepseek-flash, openai-codex/gpt-6.1-sol, ...) or
-`claude` (Claude Code: claude-haiku-5-5, sonnet, opus). Workers write their report to
+<harness> is `pi` (any pi model: opencode-go/kimi-k3.1-pro, openai-codex/gpt-6.2-sol, ...)
+or `claude` (Claude Code: claude-haiku-5-5, claude-sonnet-5-5, claude-opus-5-5). Workers write their report to
 <run-dir>/reports/<ticket>.md and reviewers to <run-dir>/reviews/<ticket>-{standards,spec}.md.
 Files are the reliable channel; reading the TUI viewport is not.
 

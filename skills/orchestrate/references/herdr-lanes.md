@@ -33,10 +33,10 @@ python3 <skill>/scripts/lane.py init <run-dir> "<epic name>"
 Run each `start` with `run_in_background`. It returns when the lane settles.
 
 ```bash
-# Default chain: pi.
-python3 <skill>/scripts/lane.py start <run-dir> 283 "#283 freeze" pi deepseek/deepseek-flash <worktree> <run-dir>/briefs/283.md
-# Haiku fallback, or Claude escalation (sonnet or opus): Claude Code in the same left pane.
-python3 <skill>/scripts/lane.py start <run-dir> 283 "#283 freeze" claude claude-haiku-5-5 <worktree> <run-dir>/briefs/283.md
+# Default implementer: Kimi K3.1 Pro on pi.
+python3 <skill>/scripts/lane.py start <run-dir> 283 "#283 freeze" pi opencode-go/kimi-k3.1-pro <worktree> <run-dir>/briefs/283.md
+# Sonnet fallback, or Opus escalation: Claude Code in the same left pane.
+python3 <skill>/scripts/lane.py start <run-dir> 283 "#283 freeze" claude claude-sonnet-5-5 <worktree> <run-dir>/briefs/283.md
 ```
 
 `start` takes five steps:
@@ -72,11 +72,12 @@ python3 <skill>/scripts/lane.py adopt <run-dir> 287 "#287 release config" <workt
 Run in the background:
 
 ```bash
-python3 <skill>/scripts/lane.py review <run-dir> 283 pi openai-codex/gpt-6.1-sol \
+python3 <skill>/scripts/lane.py review <run-dir> 283 pi openai-codex/gpt-6.2-sol \
     <run-dir>/briefs/283-review-standards.md <run-dir>/briefs/283-review-spec.md
 ```
 
-Fallback, when gpt-6.1-sol is not live:
+Fallbacks: `openai-codex/gpt-6.2-astra` on pi, then Claude Opus when neither Codex model is live
+(or when Codex implemented the ticket):
 
 ```bash
 python3 <skill>/scripts/lane.py review <run-dir> 283 claude opus <standards brief> <spec brief>

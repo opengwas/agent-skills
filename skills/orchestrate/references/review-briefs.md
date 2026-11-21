@@ -2,8 +2,8 @@
 
 These two briefs carry the `code-review` skill's two axes. `lane.py review` runs them in
 parallel, as separate one-shot processes in the ticket's reviewer pane. Use whichever
-reviewer the chain gives you: `openai-codex/gpt-6.1-sol` on pi, or Claude Opus on Claude
-Code. The briefs are the same for both.
+reviewer the chain gives you: `openai-codex/gpt-6.2-sol` or `gpt-6.2-astra` on pi, or Claude
+Opus 5.5 on Claude Code (always Opus when Codex implemented the ticket). The briefs are the same for both.
 
 The axes stay separate on purpose. Code can follow every standard and still build the
 wrong thing, or build the right thing in breach of the standards. One reviewer doing both
