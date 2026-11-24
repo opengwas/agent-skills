@@ -33,6 +33,7 @@ Must run inside a Herdr pane (HERDR_ENV=1).
 from __future__ import annotations
 
 import fcntl
+import hashlib
 import json
 import os
 import re
@@ -66,10 +67,15 @@ def text_of(result: dict) -> str:
     return str(result.get("result", {}).get("text") or result.get("raw", ""))
 
 
-def agent_name(ticket: str) -> str:
-    """Herdr agent names are [a-z][a-z0-9_-]{0,31}: `impl-283`, `impl-t1`."""
+def agent_name(run_dir: Path, ticket: str) -> str:
+    """Herdr agent names are [a-z][a-z0-9_-]{0,31}; unique per run and ticket: `impl-283-3fa9c1`.
+
+    A finished run's `impl-7` would otherwise block the next run's ticket 7. The suffix is a short
+    stable hash of the run directory, so every command of one run finds the same agent.
+    """
     slug = re.sub(r"[^a-z0-9_-]+", "-", ticket.lower()).strip("-") or "x"
-    return f"impl-{slug}"[:32]
+    tag = hashlib.sha1(str(Path(run_dir).resolve()).encode()).hexdigest()[:6]
+    return f"impl-{slug[:18]}-{tag}"
 
 
 def layout_path(run_dir: Path) -> Path:
@@ -115,7 +121,7 @@ def suspects(pane_or_agent: str, *, agent: bool) -> list[str]:
 
 
 def settle_summary(run_dir: Path, ticket: str, result: dict) -> int:
-    name = agent_name(ticket)
+    name = agent_name(run_dir, ticket)
     status = result.get("result", {}).get("agent", {}).get("agent_status", "unknown")
     report = run_dir / "reports" / f"{ticket}.md"
     present = report.exists() and report.stat().st_size > 0
@@ -162,7 +168,7 @@ def start(run_dir: Path, ticket: str, label: str, harness: str, model: str, cwd:
         args = ["--model", model, "--permission-mode", CLAUDE_PERMISSION_MODE]
     else:
         sys.exit(f"unknown harness {harness!r}: use pi or claude")
-    name = agent_name(ticket)
+    name = agent_name(run_dir, ticket)
     # A fresh tab's shell can still be starting (the user's profile runs first); Herdr then
     # refuses with "not an available shell". Retry for up to a minute rather than fail.
     for _ in range(30):
@@ -206,7 +212,7 @@ def adopt(run_dir: Path, ticket: str, label: str, cwd: str) -> int:
 
 
 def prompt(run_dir: Path, ticket: str, brief: str) -> int:
-    result = herdr("agent", "prompt", agent_name(ticket), pointer(brief, run_dir / "reports" / f"{ticket}.md"),
+    result = herdr("agent", "prompt", agent_name(run_dir, ticket), pointer(brief, run_dir / "reports" / f"{ticket}.md"),
                    "--wait", check=False)
     return settle_summary(run_dir, ticket, result)
 
@@ -281,7 +287,7 @@ def main(argv: list[str]) -> int:
         return adopt(run_dir, *rest)
     if cmd == "wait":
         # Re-attach to a lane whose start/prompt waiter died (e.g. a timeout around it).
-        result = herdr("agent", "wait", agent_name(rest[0]), check=False)
+        result = herdr("agent", "wait", agent_name(run_dir, rest[0]), check=False)
         return settle_summary(run_dir, rest[0], result)
     if cmd == "review":
         return review(run_dir, *rest)
@@ -289,7 +295,7 @@ def main(argv: list[str]) -> int:
     if cmd == "status":
         for ticket in rest or list(layout["tickets"]):
             lane = layout["tickets"].get(ticket, {})
-            agent = herdr("agent", "get", agent_name(ticket), check=False).get("result", {}).get("agent", {})
+            agent = herdr("agent", "get", agent_name(run_dir, ticket), check=False).get("result", {}).get("agent", {})
             print(f"{ticket}\t{lane.get('tab', '?')} {lane.get('label', '')}\timplementer={agent.get('agent_status', 'gone')}"
                   f"\treview_rounds={lane.get('review_rounds', 0)}")
         return 0
@@ -300,7 +306,7 @@ def main(argv: list[str]) -> int:
             out = herdr("pane", "read", layout["tickets"][ticket]["review"], "--source", "recent-unwrapped",
                         "--lines", lines, check=False)
         else:
-            out = herdr("agent", "read", agent_name(ticket), "--source", "recent-unwrapped", "--lines", lines, check=False)
+            out = herdr("agent", "read", agent_name(run_dir, ticket), "--source", "recent-unwrapped", "--lines", lines, check=False)
         print(text_of(out))
         return 0
     if cmd == "stop":
