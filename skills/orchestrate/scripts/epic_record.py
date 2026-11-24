@@ -80,6 +80,11 @@ def prs(states, repo, rows):
     for s in states:
         found = [ref(k, repo) for k in (s.get("pr_merged") or {})]
         found += [f"{repo}#{s['pr']}"] if s.get("pr") else []
+        found += [
+            ref(f"{p.get('repo', repo)}#{p['pr']}", repo)
+            for p in (s.get("sibling_prs") or [])
+            if p.get("pr")
+        ]
         out += found
     out += [r["pr"] for r in rows if r["pr"]]
     return list(dict.fromkeys(out))

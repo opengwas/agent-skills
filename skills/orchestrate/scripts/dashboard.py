@@ -83,8 +83,14 @@ def render(state: dict) -> str:
         def delta(wall):
             return f"{wall:.0f} s ({(wall - base) / base:+.0%})"
         lines += ["", "### Test time", f"- Baseline (`{timing['baseline'].get('commit', '')}`): {base:.0f} s"]
-        lines += [f"- After #{m['ticket']} (`{m.get('commit', '')}`): {delta(m['wall_s'])}"
-                  + (f": {m['note']}" if m.get("note") else "") for m in timing.get("merges", [])]
+        def merge_line(m):
+            # A merge records either a full-suite wall time, comparable with the
+            # baseline, or a smoke run of the affected suites, which is not.
+            head = f"- After #{m['ticket']} (`{m.get('commit', '')}`): "
+            if "wall_s" in m:
+                return head + delta(m["wall_s"]) + (f": {m['note']}" if m.get("note") else "")
+            return head + "smoke " + str(m.get("smoke") or m.get("note") or "not recorded")
+        lines += [merge_line(m) for m in timing.get("merges", [])]
         if timing.get("final"):
             lines.append(f"- **Final:** {delta(timing['final']['wall_s'])}")
     if state.get("followups"):
