@@ -1,8 +1,9 @@
 # Project site: the epic record and the yardstick
 
-Only for a repo with `docs/spec/project-site.md`. Its "The epic record" section and
-`src/project_site/records.py` are the contract; `docs/spec/yardstick.md` defines the
-yardstick. Read the section if you hand-edit a record.
+Only for a repo that keeps epic records in `docs/_epics/` (opengwasdb-stores). The spec is og-dev-hub's
+`docs/spec/project-site.md`: its "The epic record" section and og-dev-hub's
+`src/project_site/records.py` are the contract; opengwasdb-stores' `docs/spec/yardstick.md`
+defines the yardstick. Read the section if you hand-edit a record.
 
 ## The record
 
@@ -25,7 +26,8 @@ hash (`1ad7685 + 1f1d2fa (final fixes)` gives `1ad7685`); any other text gives `
 `pr`, `pr_merged` and the tickets' `pr`. `started` is the earliest decision's date unless
 `state.json` sets `started`.
 
-Validate with the repo's own environment (no environment of the skill's):
+Validate in opengwasdb-stores' `dev` environment, which installs og-dev-hub's `project_site` as a
+dependency (no environment of the skill's):
 
 ```bash
 pixi run -e dev python -c "import sys,yaml; from project_site.records import validate_epic; \

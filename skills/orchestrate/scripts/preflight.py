@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """Does this ticket's lane meet uncoordinated live work? Ask the architecture map before launching it.
 
-    preflight.py --ticket <repo#n> --files <path>... [--stores DIR] [--local GIT_DIR...]
-                 [--repo engine|registry] [--timeout S] [-- <architecture conflicts flags>]
+    preflight.py --ticket <repo#n> --files <path>... [--hub DIR] [--local GIT_DIR...]
+                 --repo NAME [--timeout S] [-- <architecture conflicts flags>]
 
-Run from anywhere. It runs `conflicts --refresh` from the architecture CLI (#419, epic #416) in an
-opengwasdb-stores checkout: `--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`.
-`--refresh` fetches the engine and both repositories' branches before the map answers. It passes
-`--local` the host's own clones (`~/repo/opengwasdb`, `~/repo/opengwasdb-stores`, when
-they exist) so that lanes which exist only on this host count. The files are the ones the
-ticket's notes and its brief assign it, spelled as the repository spells them. The ticket is
+Run from anywhere. It runs `conflicts --refresh` from the architecture CLI (og-dev-hub's
+`project_site.architecture`) in an og-dev-hub checkout: `--hub`, else `$ORCH_HUB`, else
+`~/repo/og-dev-hub`. `--refresh` fetches every repository `system.yaml` lists before the map
+answers. `--repo` (required: the CLI refuses `--files` without it) is the ticket's repository by
+name (`opengwasdb`, `opengwasdb-stores`, ...); a repository without a model is answered UNCHECKED
+by the map itself. It passes `--local` the host's own clones (`~/repo/opengwasdb`,
+`~/repo/opengwasdb-stores`, `~/repo/og-dev-hub`, when they exist) so that lanes which exist only
+on this host count. The files are the ones the ticket's notes and its brief assign it, spelled as the repository spells them. The ticket is
 the map's (`opengwasdb#338`); an `owner/repo#n` label is accepted and cut to that form.
 
 Prints the CLI's own output, then one verdict line and its action as the exit status:
@@ -33,8 +35,8 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-DEFAULT_STORES = Path.home() / "repo/opengwasdb-stores"
-DEFAULT_LOCAL = (Path.home() / "repo/opengwasdb", Path.home() / "repo/opengwasdb-stores")
+DEFAULT_HUB = Path.home() / "repo/og-dev-hub"
+DEFAULT_LOCAL = tuple(Path.home() / "repo" / name for name in ("opengwasdb", "opengwasdb-stores", "og-dev-hub"))
 MEET = re.compile(r"^\s+(UNCOORDINATED|UNLINKABLE): (.*)$", re.MULTILINE)
 TICKET = re.compile(r"\b([A-Za-z0-9_.-]+#\d+)\b")
 OWNER = re.compile(r"^  (\S+#\d+)(?:\s|$)")
@@ -53,8 +55,8 @@ def ticket_label(value: str) -> str:
     return bare
 
 
-def stores_dir(given: str | None) -> Path:
-    return Path(given or os.environ.get("ORCH_STORES") or DEFAULT_STORES).expanduser()
+def hub_dir(given: str | None) -> Path:
+    return Path(given or os.environ.get("ORCH_HUB") or DEFAULT_HUB).expanduser()
 
 
 def local_dirs(given: Sequence[str]) -> list[str]:
@@ -63,13 +65,13 @@ def local_dirs(given: Sequence[str]) -> list[str]:
 
 def run(args: argparse.Namespace) -> tuple[int, str]:
     """`(exit status, the CLI's output)`: the CLI run in the checkout, or the reason it did not run."""
-    directory = stores_dir(args.stores)
+    directory = hub_dir(args.hub)
     missing = [p for p in ("pixi.toml", "src/project_site/architecture.py") if not (directory / p).exists()]
     if missing:
         return 2, f"no architecture CLI at {directory}: {', '.join(missing)} is not there"
-    # `--refresh` fetches the engine and both repositories' branches first; without it the map
+    # `--refresh` fetches every listed repository's branches first; without it the map
     # answers from whatever was last fetched, and misses a branch pushed since.
-    command = ["pixi", "run", "-e", "dev", "architecture", "conflicts", "--refresh",
+    command = ["pixi", "run", "architecture", "conflicts", "--refresh",
                "--ticket", args.ticket, "--files", *args.files]
     if args.repo:
         command += ["--repo", args.repo]
@@ -144,12 +146,13 @@ def main(argv: Sequence[str]) -> int:
                         help="the lane's ticket in the map's form (repo#n; owner/repo#n is cut to it)")
     parser.add_argument("--files", required=True, nargs="+", metavar="PATH",
                         help="the files the ticket will touch, from the repository's root")
-    parser.add_argument("--stores", default=None, help=f"opengwasdb-stores checkout (default: $ORCH_STORES, {DEFAULT_STORES})")
+    parser.add_argument("--hub", default=None, help=f"og-dev-hub checkout (default: $ORCH_HUB, {DEFAULT_HUB})")
     parser.add_argument("--local", nargs="+", default=[], metavar="GIT_DIR",
                         help="clones whose local branches count (default: the ones that exist of "
                              + ", ".join(str(p) for p in DEFAULT_LOCAL) + ")")
-    parser.add_argument("--repo", choices=("engine", "registry"), default=None,
-                        help="the ticket's repository, so its paths are read against that repository's claims")
+    parser.add_argument("--repo", required=True, metavar="NAME",
+                        help="the ticket's repository by name in og-dev-hub's system.yaml (opengwasdb, "
+                             "opengwasdb-stores, ...), so its paths are read against that repository's claims")
     parser.add_argument("--timeout", type=int, default=900, help="seconds to wait for the map (default: 900)")
     parser.add_argument("extra", nargs="*", help="further `conflicts` flags, after `--`")
     args = parser.parse_args(argv)

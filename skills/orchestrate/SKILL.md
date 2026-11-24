@@ -241,7 +241,7 @@ Per ticket:
 
    Escalating costs more per ticket but less than two failed rounds.
 4. **Stop before a lane meets uncoordinated work.** Run
-   `<skill>/scripts/preflight.py --ticket <repo>#<t> --repo <engine|registry> --files <the paths
+   `<skill>/scripts/preflight.py --ticket <repo>#<t> --repo <name in og-dev-hub's system.yaml> --files <the paths
    the ticket's notes and its brief give it>` before every `lane.py start`, and act on its last
    line:
    - **`LAUNCH`** (exit 0): the files meet no other live work, or only work a blocking edge
@@ -258,13 +258,12 @@ Per ticket:
      is missing or too old). Say so to the user once, in plain words, and launch. Put it in the
      ticket's `note` in `state.json` so the dashboard carries it. Never read it as no conflict.
 
-   The check runs the architecture map's `conflicts` in an `opengwasdb-stores` checkout
-   (`--stores`, else `$ORCH_STORES`, else `~/repo/opengwasdb-stores`) on this host, so the lanes
-   that exist only here count; `--repo` takes `engine` for `opengwasdb` work and `registry` for
-   `opengwasdb-stores` work. Spell each path as the repository does, from its root: a path no
+   The check runs the architecture map's `conflicts` in an og-dev-hub checkout on this host, so the
+   lanes that exist only here count; `preflight.py --help` says how it finds the checkout and
+   which names `--repo` takes. Spell each path as the repository does, from its root: a path no
    claim covers places nothing, and the verdict says how many components the files landed on.
-   Only for `opengwas/opengwasdb` and `opengwas/opengwasdb-stores` work, which have the map;
-   another repository skips the check, saying so.
+   It runs for any repository `system.yaml` lists; the map answers `UNCHECKED` itself for one
+   without a model.
 
 5. **Launch.** `lane.py start <run-dir> <t> "<tab label>" <harness> <model> <worktree> <brief>`
    creates the ticket's tab and both panes, starts the implementer, and sends the one-line
@@ -367,7 +366,8 @@ Re-compute the frontier and launch whatever it opened.
    - set its status to `fixing` in `state.json`.
 
    `sync-run` closes it again when it re-merges.
-3. **Project site.** Only if the repo has `docs/spec/project-site.md`; otherwise skip to 4.
+3. **Project site.** Only if the repo keeps epic records in `docs/_epics/` (opengwasdb-stores
+   today); otherwise skip to 4.
    [references/project-site.md](references/project-site.md) has the rules.
    - Run `pixi run yardstick` on the integration branch if the reference's window and a quiet
      host allow, and commit the result. Otherwise defer it, and say so in `board_note`.
@@ -422,7 +422,7 @@ Re-compute the frontier and launch whatever it opened.
   follow-up that adds a module or component, moves code between components, or should remove
   an import between components, write the change in its body as one fenced block tagged
   `architecture`, in the owner's format (opengwas/opengwasdb-stores#422). The board and
-  work collectors read it, and the map draws it. opengwasdb-stores'
+  work collectors read it, and the map draws it. og-dev-hub's
   `docs/spec/project-site.md`, "Planned changes", is the format.
 
   ```architecture
