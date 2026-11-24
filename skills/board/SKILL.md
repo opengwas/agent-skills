@@ -84,7 +84,7 @@ Work through the report and propose changes.
 
 ### 4. Ask, then apply
 
-Show the changeset as tables grouped by kind, and give the reason for anything non-obvious. Show the draft status update from step 6 alongside it. Ask the user to approve, edit or drop items. Closing an issue, creating one, and moving an issue to a different parent each need explicit approval.
+Show the changeset as tables grouped by kind, and give the reason for anything non-obvious. Show the draft status update from step 5 alongside it. Ask the user to approve, edit or drop items. Closing an issue, creating one, and moving an issue to a different parent each need explicit approval.
 
 Write the approved changes to `~/.cache/board/changes-<date>.json`. Run `board.py apply <file> --dry-run`, then run it again without `--dry-run`. The ops are:
 
@@ -107,11 +107,7 @@ Write the approved changes to `~/.cache/board/changes-<date>.json`. Run `board.p
 - `tick` needs `match` to hit exactly one checklist line.
 - `parent` takes `"replace": true` to move a ticket that already has a parent.
 
-### 5. Publish the site
-
-Only if the user's og-dev-hub checkout has `docs/spec/project-site.md`. After a sync that moved an epic to Done, or otherwise changed what the site shows (an epic's Status, Next or Workstream, a milestone), offer to run `pixi run site-publish` in that og-dev-hub checkout. Publishing is the owner's call: offer it, never run it unasked.
-
-### 6. Post the status update
+### 5. Post the status update
 
 Draft a short update covering:
 - **Moved since the last update** (the report gives its date): the epics and milestone lines that advanced.
