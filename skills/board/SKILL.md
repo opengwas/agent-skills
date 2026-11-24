@@ -109,7 +109,7 @@ Write the approved changes to `~/.cache/board/changes-<date>.json`. Run `board.p
 
 ### 5. Publish the site
 
-Only if the user's `opengwasdb-stores` checkout has `docs/spec/project-site.md`. After a sync that moved an epic to Done, or otherwise changed what the site shows (an epic's Status, Next or Workstream, a milestone), offer to run `pixi run site-publish` in that checkout. Publishing is the owner's call: offer it, never run it unasked.
+Only if the user's og-dev-hub checkout has `docs/spec/project-site.md`. After a sync that moved an epic to Done, or otherwise changed what the site shows (an epic's Status, Next or Workstream, a milestone), offer to run `pixi run site-publish` in that og-dev-hub checkout. Publishing is the owner's call: offer it, never run it unasked.
 
 ### 6. Post the status update
 
