@@ -1,6 +1,6 @@
 ---
 name: create-store
-description: "Set up an OpenGWASDB Store Release: align its scientific and operational requirements, then file an epic with obtain-source, create-release-bundle and run-build tickets in the Store builds workstream."
+description: "Set up an OpenGWASDB Store Release: align its scientific and operational requirements, then file an epic with obtain-source, create-release-bundle and run-build tickets in the Builds workstream."
 disable-model-invocation: true
 ---
 
@@ -107,7 +107,7 @@ Use `python3 <board>/scripts/board.py apply <ops.json> --dry-run`, inspect it,
 then apply without `--dry-run`. The approved ops must:
 
 - set the epic's issue type to `Epic`;
-- add the epic to project 1 with `Workstream=Store builds`, `Status=Todo`, and a
+- add the epic to project 1 with `Workstream=Builds`, `Status=Todo`, and a
   concrete `Next` (first action or named blocker); preserve an existing epic's
   live Status when extending it;
 - attach the three stage tickets as native sub-issues using `parent` ops;
@@ -118,7 +118,7 @@ For example (substitute the created issue numbers):
 ```json
 [
   {"op":"type","key":"opengwasdb-stores#1000","type":"Epic"},
-  {"op":"add","key":"opengwasdb-stores#1000","fields":{"Workstream":"Store builds","Status":"Todo","Next":"Verify source acquisition for the agreed Selection"}},
+  {"op":"add","key":"opengwasdb-stores#1000","fields":{"Workstream":"Builds","Status":"Todo","Next":"Verify source acquisition for the agreed Selection"}},
   {"op":"parent","key":"opengwasdb-stores#1001","parent":"opengwasdb-stores#1000"},
   {"op":"parent","key":"opengwasdb-stores#1002","parent":"opengwasdb-stores#1000"},
   {"op":"parent","key":"opengwasdb-stores#1003","parent":"opengwasdb-stores#1000"},
@@ -136,7 +136,7 @@ in an epic-body ticket table.
 Re-fetch the epic type, native sub-issues, dependencies and project fields
 (`gh api` and `gh project item-list`, with pagination as needed). Done means all
 three tickets have the intended parent, both chain edges exist, and only the
-epic is on the board in **Store builds** with the agreed fields. Report any
+epic is on the board in **Builds** with the agreed fields. Report any
 partial filing or permission failure with the existing URLs and remaining ops;
 a printed apply command is not verification.
 

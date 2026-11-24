@@ -19,11 +19,11 @@
       "id": 2,
       "name": "aligned-three-ticket-filing",
       "prompt": "/create-store: use the attached agreed Store contract and checkout. I confirm the contract and approve filing the epic and its three stage tickets, after you check for duplicates. The source already exists locally; verify and reuse it. Do not start orchestration.",
-      "expected_output": "One typed Epic in Store builds, three native sub-issues, two chain dependencies and verified GitHub state; source ticket verifies existing inputs, and the final handoff offers orchestrate without running it.",
+      "expected_output": "One typed Epic in Builds, three native sub-issues, two chain dependencies and verified GitHub state; source ticket verifies existing inputs, and the final handoff offers orchestrate without running it.",
       "files": [],
       "assertions": [
         "In a sandbox with a supplied complete contract, creates exactly one Epic and three stage tickets unless a matching epic already exists.",
-        "The epic alone is on project 1 with Workstream Store builds, Status Todo and concrete Next; no child-ticket body table substitutes for native sub-issues.",
+        "The epic alone is on project 1 with Workstream Builds, Status Todo and concrete Next; no child-ticket body table substitutes for native sub-issues.",
         "Obtain source blocks Create release bundle, which blocks Run build, using native dependencies plus textual Blocked by links.",
         "Already acquired data still has an integrity/provenance verification ticket, not an unnecessary download or a silently skipped stage.",
         "Tickets have stage-specific evidence, exact-bundle human acceptance, execution/publication approval, and actual built Analysis ID reconciliation criteria.",
