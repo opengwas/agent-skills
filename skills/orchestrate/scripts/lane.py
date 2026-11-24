@@ -71,11 +71,33 @@ def agent_name(run_dir: Path, ticket: str) -> str:
     """Herdr agent names are [a-z][a-z0-9_-]{0,31}; unique per run and ticket: `impl-283-3fa9c1`.
 
     A finished run's `impl-7` would otherwise block the next run's ticket 7. The suffix is a short
-    stable hash of the run directory, so every command of one run finds the same agent.
+    stable hash of the run directory and the full ticket key, so every command of one run finds the
+    same agent and two long keys that share a prefix still differ. The readable part is what fits.
     """
     slug = re.sub(r"[^a-z0-9_-]+", "-", ticket.lower()).strip("-") or "x"
-    tag = hashlib.sha1(str(Path(run_dir).resolve()).encode()).hexdigest()[:6]
-    return f"impl-{slug[:18]}-{tag}"
+    tag = hashlib.sha1(f"{Path(run_dir).resolve()}\0{ticket}".encode()).hexdigest()[:6]
+    return f"impl-{slug[:20]}-{tag}"
+
+
+def legacy_agent_name(ticket: str) -> str:
+    """The name runs started before the per-run suffix gave their agents: `impl-<ticket>`."""
+    slug = re.sub(r"[^a-z0-9_-]+", "-", ticket.lower()).strip("-") or "x"
+    return f"impl-{slug}"[:32]
+
+
+def has_agent(name: str) -> bool:
+    return bool(herdr("agent", "get", name, check=False).get("result", {}).get("agent"))
+
+
+def find_agent(run_dir: Path, ticket: str) -> str:
+    """The name of the ticket's agent: the per-run name, else (a run started before it) the old one."""
+    name = agent_name(run_dir, ticket)
+    if not has_agent(name):
+        legacy = legacy_agent_name(ticket)
+        if has_agent(legacy):
+            print(f"NOTE {ticket}: no agent {name}; using {legacy}, named before agent names were per-run")
+            return legacy
+    return name
 
 
 def layout_path(run_dir: Path) -> Path:
@@ -121,7 +143,7 @@ def suspects(pane_or_agent: str, *, agent: bool) -> list[str]:
 
 
 def settle_summary(run_dir: Path, ticket: str, result: dict) -> int:
-    name = agent_name(run_dir, ticket)
+    name = find_agent(run_dir, ticket)
     status = result.get("result", {}).get("agent", {}).get("agent_status", "unknown")
     report = run_dir / "reports" / f"{ticket}.md"
     present = report.exists() and report.stat().st_size > 0
@@ -212,8 +234,8 @@ def adopt(run_dir: Path, ticket: str, label: str, cwd: str) -> int:
 
 
 def prompt(run_dir: Path, ticket: str, brief: str) -> int:
-    result = herdr("agent", "prompt", agent_name(run_dir, ticket), pointer(brief, run_dir / "reports" / f"{ticket}.md"),
-                   "--wait", check=False)
+    result = herdr("agent", "prompt", find_agent(run_dir, ticket),
+                   pointer(brief, run_dir / "reports" / f"{ticket}.md"), "--wait", check=False)
     return settle_summary(run_dir, ticket, result)
 
 
@@ -287,7 +309,7 @@ def main(argv: list[str]) -> int:
         return adopt(run_dir, *rest)
     if cmd == "wait":
         # Re-attach to a lane whose start/prompt waiter died (e.g. a timeout around it).
-        result = herdr("agent", "wait", agent_name(run_dir, rest[0]), check=False)
+        result = herdr("agent", "wait", find_agent(run_dir, rest[0]), check=False)
         return settle_summary(run_dir, rest[0], result)
     if cmd == "review":
         return review(run_dir, *rest)
@@ -295,7 +317,7 @@ def main(argv: list[str]) -> int:
     if cmd == "status":
         for ticket in rest or list(layout["tickets"]):
             lane = layout["tickets"].get(ticket, {})
-            agent = herdr("agent", "get", agent_name(run_dir, ticket), check=False).get("result", {}).get("agent", {})
+            agent = herdr("agent", "get", find_agent(run_dir, ticket), check=False).get("result", {}).get("agent", {})
             print(f"{ticket}\t{lane.get('tab', '?')} {lane.get('label', '')}\timplementer={agent.get('agent_status', 'gone')}"
                   f"\treview_rounds={lane.get('review_rounds', 0)}")
         return 0
@@ -306,7 +328,8 @@ def main(argv: list[str]) -> int:
             out = herdr("pane", "read", layout["tickets"][ticket]["review"], "--source", "recent-unwrapped",
                         "--lines", lines, check=False)
         else:
-            out = herdr("agent", "read", agent_name(run_dir, ticket), "--source", "recent-unwrapped", "--lines", lines, check=False)
+            out = herdr("agent", "read", find_agent(run_dir, ticket), "--source", "recent-unwrapped",
+                        "--lines", lines, check=False)
         print(text_of(out))
         return 0
     if cmd == "stop":

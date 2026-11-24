@@ -3,8 +3,9 @@
 
   epic_record.py <run-dir> --summary-file F [--out PATH]
 
-The record is docs/_epics/<repo>-<n>.yaml in og-dev-hub's docs/spec/project-site.md. Validate it in opengwasdb-stores' `dev`
-environment (`from project_site.records import validate_epic`).
+The record is docs/_epics/<repo>-<n>.yaml, defined by og-dev-hub's docs/spec/project-site.md.
+Validate it in opengwasdb-stores' `dev` environment (`from project_site.records import
+validate_epic`).
 It is built from <run-dir>/state.json, and from the state-stage*.json archives beside
 it (earlier stages first; a ticket a later stage re-entered replaces its earlier entry).
 The summary (2-4 sentences) is written by the orchestrator and read from F, never made up.

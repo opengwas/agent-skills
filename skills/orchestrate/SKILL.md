@@ -241,7 +241,7 @@ Per ticket:
 
    Escalating costs more per ticket but less than two failed rounds.
 4. **Stop before a lane meets uncoordinated work.** Run
-   `<skill>/scripts/preflight.py --ticket <repo>#<t> --repo <engine|registry> --files <the paths
+   `<skill>/scripts/preflight.py --ticket <repo>#<t> --repo <name in og-dev-hub's system.yaml> --files <the paths
    the ticket's notes and its brief give it>` before every `lane.py start`, and act on its last
    line:
    - **`LAUNCH`** (exit 0): the files meet no other live work, or only work a blocking edge
@@ -258,10 +258,9 @@ Per ticket:
      is missing or too old). Say so to the user once, in plain words, and launch. Put it in the
      ticket's `note` in `state.json` so the dashboard carries it. Never read it as no conflict.
 
-   The check runs the architecture map's `conflicts` in an `og-dev-hub` checkout (`--hub`, else
-   `$ORCH_HUB`, else `~/repo/og-dev-hub`) on this host, so the lanes that exist only here count;
-   `--repo` takes the repository's name as og-dev-hub's `system.yaml` lists it (`opengwasdb`,
-   `opengwasdb-stores`, ...). Spell each path as the repository does, from its root: a path no
+   The check runs the architecture map's `conflicts` in an og-dev-hub checkout on this host, so the
+   lanes that exist only here count; `preflight.py --help` says how it finds the checkout and
+   which names `--repo` takes. Spell each path as the repository does, from its root: a path no
    claim covers places nothing, and the verdict says how many components the files landed on.
    It runs for any repository `system.yaml` lists; the map answers `UNCHECKED` itself for one
    without a model.

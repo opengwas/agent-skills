@@ -1,9 +1,9 @@
 # Project site: the epic record and the yardstick
 
 Only for a repo that keeps epic records in `docs/_epics/` (opengwasdb-stores). The spec is og-dev-hub's
-`docs/spec/project-site.md`: its "The epic record" section and
-og-dev-hub's `src/project_site/records.py` are the contract; `docs/spec/yardstick.md` defines the
-yardstick. Read the section if you hand-edit a record.
+`docs/spec/project-site.md`: its "The epic record" section and og-dev-hub's
+`src/project_site/records.py` are the contract; opengwasdb-stores' `docs/spec/yardstick.md`
+defines the yardstick. Read the section if you hand-edit a record.
 
 ## The record
 

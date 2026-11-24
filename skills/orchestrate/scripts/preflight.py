@@ -2,16 +2,16 @@
 """Does this ticket's lane meet uncoordinated live work? Ask the architecture map before launching it.
 
     preflight.py --ticket <repo#n> --files <path>... [--hub DIR] [--local GIT_DIR...]
-                 [--repo NAME] [--timeout S] [-- <architecture conflicts flags>]
+                 --repo NAME [--timeout S] [-- <architecture conflicts flags>]
 
 Run from anywhere. It runs `conflicts --refresh` from the architecture CLI (og-dev-hub's
 `project_site.architecture`) in an og-dev-hub checkout: `--hub`, else `$ORCH_HUB`, else
 `~/repo/og-dev-hub`. `--refresh` fetches every repository `system.yaml` lists before the map
-answers. `--repo` is the ticket's repository by name (`opengwasdb`, `opengwasdb-stores`, ...); a
-repository without a model is answered UNCHECKED by the map itself. It passes
-`--local` the host's own clones (`~/repo/opengwasdb`, `~/repo/opengwasdb-stores`,
-`~/repo/og-dev-hub`, when they exist) so that lanes which exist only on this host count. The files are the ones the
-ticket's notes and its brief assign it, spelled as the repository spells them. The ticket is
+answers. `--repo` (required: the CLI refuses `--files` without it) is the ticket's repository by
+name (`opengwasdb`, `opengwasdb-stores`, ...); a repository without a model is answered UNCHECKED
+by the map itself. It passes `--local` the host's own clones (`~/repo/opengwasdb`,
+`~/repo/opengwasdb-stores`, `~/repo/og-dev-hub`, when they exist) so that lanes which exist only
+on this host count. The files are the ones the ticket's notes and its brief assign it, spelled as the repository spells them. The ticket is
 the map's (`opengwasdb#338`); an `owner/repo#n` label is accepted and cut to that form.
 
 Prints the CLI's own output, then one verdict line and its action as the exit status:
@@ -69,7 +69,7 @@ def run(args: argparse.Namespace) -> tuple[int, str]:
     missing = [p for p in ("pixi.toml", "src/project_site/architecture.py") if not (directory / p).exists()]
     if missing:
         return 2, f"no architecture CLI at {directory}: {', '.join(missing)} is not there"
-    # `--refresh` fetches the engine and both repositories' branches first; without it the map
+    # `--refresh` fetches every listed repository's branches first; without it the map
     # answers from whatever was last fetched, and misses a branch pushed since.
     command = ["pixi", "run", "architecture", "conflicts", "--refresh",
                "--ticket", args.ticket, "--files", *args.files]
@@ -150,7 +150,7 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument("--local", nargs="+", default=[], metavar="GIT_DIR",
                         help="clones whose local branches count (default: the ones that exist of "
                              + ", ".join(str(p) for p in DEFAULT_LOCAL) + ")")
-    parser.add_argument("--repo", default=None, metavar="NAME",
+    parser.add_argument("--repo", required=True, metavar="NAME",
                         help="the ticket's repository by name in og-dev-hub's system.yaml (opengwasdb, "
                              "opengwasdb-stores, ...), so its paths are read against that repository's claims")
     parser.add_argument("--timeout", type=int, default=900, help="seconds to wait for the map (default: 900)")

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import re
 import sys
 import unittest
@@ -29,12 +31,42 @@ class AgentName(unittest.TestCase):
     def test_always_a_valid_herdr_name(self) -> None:
         for ticket in ("7", "t1", "opengwas/og-dev-hub#9", "X" * 80, "###", "Ünï"):
             name = lane.agent_name(Path("/runs/one"), ticket)
-            self.assertRegex(name, HERDR_NAME)
             self.assertTrue(HERDR_NAME.fullmatch(name), name)
 
-    def test_long_tickets_keep_the_run_suffix(self) -> None:
-        self.assertEqual(lane.agent_name(Path("/runs/one"), "a" * 80)[-7:],
-                         lane.agent_name(Path("/runs/one"), "b" * 5)[-7:])
+    def test_long_keys_sharing_a_prefix_differ(self) -> None:
+        run = Path("/runs/one")
+        self.assertNotEqual(lane.agent_name(run, "opengwas/opengwasdb-stores#282"),
+                            lane.agent_name(run, "opengwas/opengwasdb-stores#283"))
+
+
+class FindAgent(unittest.TestCase):
+    """A run started before per-run names has agents named `impl-<ticket>`."""
+
+    def setUp(self) -> None:
+        self.live: set[str] = set()
+        self.original = lane.herdr
+        lane.herdr = lambda *args, check=True: (
+            {"result": {"agent": {"name": args[2]}}} if args[2] in self.live else {})
+
+    def tearDown(self) -> None:
+        lane.herdr = self.original
+
+    def test_prefers_the_per_run_name(self) -> None:
+        run = Path("/runs/one")
+        self.live = {lane.agent_name(run, "7"), "impl-7"}
+        self.assertEqual(lane.find_agent(run, "7"), lane.agent_name(run, "7"))
+
+    def test_falls_back_to_the_old_name_and_says_so(self) -> None:
+        self.live = {"impl-7"}
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            name = lane.find_agent(Path("/runs/one"), "7")
+        self.assertEqual(name, "impl-7")
+        self.assertIn("impl-7", out.getvalue())
+
+    def test_neither_exists_gives_the_new_name(self) -> None:
+        run = Path("/runs/one")
+        self.assertEqual(lane.find_agent(run, "7"), lane.agent_name(run, "7"))
 
 
 if __name__ == "__main__":

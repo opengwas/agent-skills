@@ -79,6 +79,7 @@ class Preflight(unittest.TestCase):
             environment["HOME"] = str(home)
         return subprocess.run(
             [sys.executable, str(SCRIPT), "--ticket", "opengwas/opengwasdb#338",
+             "--repo", "opengwasdb",
              "--files", "opengwasdb/store/convert.py", "opengwasdb/query/facade.py", *extra],
             capture_output=True, text=True, env=environment, timeout=120,
         )
@@ -241,15 +242,15 @@ class Preflight(unittest.TestCase):
 
     def test_passes_the_repo_name_and_does_not_pick_an_environment(self) -> None:
         pixi(self.tmp, 0, "meets no other work")
-        self.run_preflight("--hub", str(self.hub), "--repo", "opengwasdb-stores")
+        self.run_preflight("--hub", str(self.hub))
         calls = (self.tmp / "pixi-args.txt").read_text()
-        self.assertIn("--repo opengwasdb-stores", calls)
+        self.assertIn("--repo opengwasdb", calls)
         self.assertNotIn("-e dev", calls)
 
     def test_hub_comes_from_the_environment(self) -> None:
         pixi(self.tmp, 0, "meets no other work")
         environment = {**os.environ, "PATH": self.path, "ORCH_HUB": str(self.hub)}
-        result = subprocess.run([sys.executable, str(SCRIPT), "--ticket", "x/y#1", "--files", "a.py"],
+        result = subprocess.run([sys.executable, str(SCRIPT), "--ticket", "x/y#1", "--repo", "opengwasdb", "--files", "a.py"],
                                 capture_output=True, text=True, env=environment, timeout=120)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
