@@ -376,7 +376,16 @@ Re-compute the frontier and launch whatever it opened.
    - If one applies, or the repo has no merge rules, don't merge. Name the gate on the
      dashboard, set `board_note` to "ready for your review: <gate>", and run `sync-run`.
    - Never `--admin`. A red required check is a ticket to fix, not a gate to step around.
-6. Clean up the worktrees, and the Herdr tabs and panes this run created, and nothing else.
+6. **Yardstick, for an epic that changes opengwasdb (or ogquery, once it exists).** Once
+   the epic's PR has merged, which is its release, move opengwasdb-stores' lock to the
+   merge (`pixi update opengwasdb` there, on a branch). Then run `pixi run yardstick` on
+   the clean tree, read-only, when no lane, build or validation is loading the host, and
+   check the load average first. Commit the result beside the lock update in one PR.
+   opengwasdb-stores' `docs/spec/yardstick.md` defines the workload and the run. If the
+   PR is still waiting on the owner, or the host isn't quiet, defer and say so in
+   `board_note`. The epic isn't finished until the run is committed, unless the owner
+   waives it.
+7. Clean up the worktrees, and the Herdr tabs and panes this run created, and nothing else.
 
 ## Guardrails that save the most time
 
