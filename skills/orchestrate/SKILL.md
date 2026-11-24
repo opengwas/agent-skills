@@ -342,8 +342,8 @@ Workers hit spec gaps. A good brief tells them to stop and report rather than gu
 2. Merge the ticket branch into the integration branch with `--no-ff`.
 3. Run a fast smoke test (the affected suites) in a detached worktree. Record its time
    next to the baseline's for the same suites. Push.
-4. Set the ticket to `merged` in `state.json` (its `merge` is the bare merge commit hash,
-   which `epic_record.py` reads), then re-render the dashboard and run `board.py sync-run`. That closes the ticket with a comment naming the merge commit and
+4. Set the ticket to `merged` in `state.json` (its `merge` is the bare merge commit hash),
+   then re-render the dashboard and run `board.py sync-run`. That closes the ticket with a comment naming the merge commit and
    the PR, and moves the epic's Next.
 5. If the merge conflicts, give it to a merger lane with the `resolving-merge-conflicts`
    skill. Resolve by intent, keeping both behaviours, not by picking a side.
@@ -366,18 +366,8 @@ Re-compute the frontier and launch whatever it opened.
    - set its status to `fixing` in `state.json`.
 
    `sync-run` closes it again when it re-merges.
-3. **Project site.** Only if the repo keeps epic records in `docs/_epics/` (opengwasdb-stores
-   today); otherwise skip to 4.
-   [references/project-site.md](references/project-site.md) has the rules.
-   - Run `pixi run yardstick` on the integration branch if the reference's window and a quiet
-     host allow, and commit the result. Otherwise defer it, and say so in `board_note`.
-   - Set the record's optional keys in `state.json` (`workstream`, `yardstick`, and `catalog`
-     if the epic changes Store data), as the reference says.
-   - Write the summary (2–4 sentences) to `<run-dir>/notes/summary.md`, then run
-     `python3 <skill>/scripts/epic_record.py <run-dir> --summary-file <run-dir>/notes/summary.md
-     --out docs/_epics/<repo>-<n>.yaml` on the integration branch. Validate it with the
-     repo's validator, fix what it names, and commit it. Rerun it when a deferred yardstick lands.
-   - Version notes for the epic PR are the lanes' changelog fragments.
+3. Version notes for the epic PR are the lanes' changelog fragments, in a repo with
+   `changelog.d/`.
 4. Mark the draft PR ready, and render the final dashboard. It lists tickets, decisions,
    the sibling-repo PRs, follow-up issues filed, and anything left in `waiting-external`.
 5. Merge under the repo's merge rules, which its `CLAUDE.md` or `AGENTS.md` states or points to.
@@ -421,9 +411,10 @@ Re-compute the frontier and launch whatever it opened.
 - **A follow-up that changes structure carries an `architecture` block.** When you file a
   follow-up that adds a module or component, moves code between components, or should remove
   an import between components, write the change in its body as one fenced block tagged
-  `architecture`, in the owner's format (opengwas/opengwasdb-stores#422). The board and
-  work collectors read it, and the map draws it. og-dev-hub's
-  `docs/spec/project-site.md`, "Planned changes", is the format.
+  `architecture`, in the owner's format (opengwas/opengwasdb-stores#422). og-dev-hub's
+  `pixi run architecture` reads it: `conflicts` weighs it while the ticket is open, and
+  judges it held or not once it closes. og-dev-hub's `docs/spec/project-site.md`,
+  "Planned changes", is the format.
 
   ```architecture
   adds:

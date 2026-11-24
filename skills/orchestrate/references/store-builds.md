@@ -115,15 +115,13 @@ there is no time-of-day window.) With no quiet host, defer and say so in
    `tools/benchmarks/release-benchmark-report.py --store <id>` under an
    opengwasdb checkout at the pin. It runs opengwasdb's seven standard query
    shapes and the HM3 extract through opengwasdb's own harness.
-2. **Yardstick** (`docs/spec/yardstick.md`), when the Store adds a layout or
-   coverage the workload lacks, or the owner asks. The yardstick is a small
-   fixed trend benchmark with a 600 s budget, not a census. Take the
-   identifiers from the Store's own `variants.tsv.gz` rows 100,000 and 300,000
-   and its first Analysis, and check each read-only returns rows; say in the
-   entry which component each lookup reads. Bump `workload_id` and say why in
-   the spec. Commit, then run `pixi run yardstick` on the clean tree, so the
-   result is not `dirty`, and commit the result. The Store's project-site page
-   shows its size and timings from it.
+2. **Yardstick** (`docs/spec/yardstick.md`), only when the owner makes the Store
+   its layout's or kind's representative. The yardstick measures one Store per
+   GWAS Store Layout and per kind of LD Store, once per engine release; it is
+   not a census. The spec says how its inputs are chosen and checked, and its
+   budget. Bump `workload_id` and say why in the spec, commit, then run
+   `pixi run yardstick` on the clean tree, so the result is not `dirty`, and
+   commit the result. The Dev Hub's Stores view shows it.
 3. **Full-scale report**, for a Store a reader will compare with the others.
    Run its harness in opengwasdb's `benchmarks/`, or write one on
    `benchmarks/_query_shapes.py`, and commit the JSON and the rendered `.qmd`
